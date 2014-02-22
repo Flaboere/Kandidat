@@ -6,12 +6,12 @@ public class RotateStill : MonoBehaviour
 	// Use this for initialization
 	Quaternion rotation;
 	
-	void Start()
+	void Awake()
 	{
 		rotation = transform.rotation;
 	}
 	
-	void LateUpdate()
+	void FixedUpdate()
 	{
 		transform.rotation = rotation;
 	}

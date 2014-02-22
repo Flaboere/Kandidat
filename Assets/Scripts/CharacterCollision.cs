@@ -3,7 +3,7 @@ using System.Collections;
 
 public class CharacterCollision : MonoBehaviour 
 {
-
+	public Transform spawnpoint;
 	// Use this for initialization
 	void Start () 
 	{
@@ -19,9 +19,10 @@ public class CharacterCollision : MonoBehaviour
 	{
 		if (hit.collider.CompareTag ("Kill")) 
 		{
-			Debug.Log ("Yo");		
+			transform.position = spawnpoint.position;
+			Debug.Log ("Yo");
 		}
-
+		
 	}
 
 }
