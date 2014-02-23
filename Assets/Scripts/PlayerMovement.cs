@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour {
 	{
 
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
-			motor.inputJump = Input.GetKey(KeyCode.Joystick1Button0);
+			motor.inputJump = Input.GetKey(KeyCode.Joystick1Button0)||Input.GetKey (KeyCode.Space);
 //			motor.inputJump = Input.GetKey(KeyCode.Space);
 	
 	}
