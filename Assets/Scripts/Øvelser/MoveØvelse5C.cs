@@ -23,6 +23,16 @@ public class MoveØvelse5C : MonoBehaviour
 	{
 		Vector3 toOtherObject = otherObject.transform.position - transform.position;
 
+		acceleration = toOtherObject.normalized ;
+		Debug.DrawLine(transform.position, transform.position + acceleration, Color.red);
+		Debug.DrawLine(transform.position, transform.position + speed, Color.green);
+
+
+		speed = speed + acceleration * Time.deltaTime;
+		transform.position = transform.position + speed * Time.deltaTime;
+
+
+		/*
 		if (toOtherObject.magnitude > 6f) 
 		{
 			moveFar = true;
@@ -40,7 +50,7 @@ public class MoveØvelse5C : MonoBehaviour
 		{
 			speed = speed * -Time.deltaTime;
 		}
-
+*/
 //		if (toOtherObject.magnitude < 1f) 
 //		{
 //			moveClose = true;

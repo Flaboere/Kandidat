@@ -9,9 +9,12 @@ public class Vectors4 : MonoBehaviour
 		Vector3 v = new Vector3(1, 2, 4);
 		
 		// Scale the vector with 5.
-		v = v * 2f;
+		v = v * (1/v.magnitude);
+		v = v.normalized;
 		
 		// Print vector to console after scale.
+
+
 		Debug.Log(v);
 	}
 }
