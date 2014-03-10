@@ -11,7 +11,10 @@ public class CharacterController2D : MonoBehaviour
 	float groundRadius = 0.2f;
 	public LayerMask whatIsGround;
 	public float jumpForce = 700f;
-	bool doubleJump = false;
+	public bool doubleJump = false;
+	Vector3 playerRotate;
+	public float rotateAmount = 2;
+	bool jumpPickup = false;
 	// Use this for initialization
 	void Start () 
 	{
@@ -20,6 +23,36 @@ public class CharacterController2D : MonoBehaviour
 
 	void Update ()
 	{
+
+	}
+
+	// Opdager collision, og "tilføjer" et hop
+	void OnTriggerEnter(Collider pickupHit)
+	{
+		if (pickupHit.collider.CompareTag ("ExtraJump"))
+		    {
+				doubleJump = false;
+			Debug.Log ("ExtraJump");
+			}
+	}
+
+
+	void FixedUpdate () 
+	{
+		// Rotation af avatar ved hop
+		playerRotate.z = rigidbody.velocity.y;
+
+		if (rigidbody.velocity.x > 0)
+		{
+		this.transform.rotation = Quaternion.Euler (playerRotate * -rotateAmount);
+		}
+
+		if (rigidbody.velocity.x < 0)
+		{
+			this.transform.rotation = Quaternion.Euler (playerRotate * rotateAmount);
+		}
+
+		// Bestemmer hvornår man kan hoppe
 		if ((grounded || !doubleJump) && Input.GetButtonDown("Jump"))
 		{
 			rigidbody.AddForce(new Vector2(0,jumpForce));
@@ -28,30 +61,27 @@ public class CharacterController2D : MonoBehaviour
 				doubleJump = true;
 			}
 		}
-	}
-	// Update is called once per frameo
-	void FixedUpdate () 
-	{
-		grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;
-
-		float move = Input.GetAxis ("Horizontal");
-
-		rigidbody.velocity = new Vector2 (move * maxSpeed, rigidbody.velocity.y);
-
 		if (grounded) 
 		{
 			doubleJump = false;
 		}
 
 
-		if (grounded) 
+		// Sætter rotation i 0 hvis grounded
+		if (grounded)
 		{
-			Debug.Log ("grounded");
-		} 
-		else 
-		{
-			Debug.Log ("unground");
+			this.transform.rotation = Quaternion.Euler (0,0,0);
 		}
+
+		// Bestemmer grounded
+		grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;
+
+		float move = Input.GetAxis ("Horizontal");
+
+		rigidbody.velocity = new Vector2 (move * maxSpeed, rigidbody.velocity.y);
+
+
+
 	}
 
 //	- Denne function tegner en sphere med det samme information som groundCheck bruger, og gør den rød
