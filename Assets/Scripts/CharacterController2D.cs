@@ -56,6 +56,7 @@ public class CharacterController2D : MonoBehaviour
 		if ((grounded || !doubleJump) && Input.GetButtonDown("Jump"))
 		{
 			rigidbody.AddForce(new Vector2(0,jumpForce));
+			Debug.Log ("Jumped");
 			if (!doubleJump && !grounded)
 			{
 				doubleJump = true;

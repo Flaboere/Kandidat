@@ -8,6 +8,7 @@ public class CharacterRespawn : MonoBehaviour
 		// Use this for initialization
 	void Start () 
 	{
+		transform.position = spawnpoint.position;
 	}
 	
 	// Update is called once per frame

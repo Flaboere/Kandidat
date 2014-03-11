@@ -189,7 +189,7 @@ public class CharacterMotor : MonoBehaviour
 
     private CharacterController controller;
 	
-	private bool inAirJump = false;
+	public bool inAirJump = false;
 	
 	#region events
 	public delegate void OnJumpDelegate();
