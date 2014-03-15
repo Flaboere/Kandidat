@@ -12,7 +12,11 @@ public class PlayerMovement : MonoBehaviour
 	private float inAirJumpHeight;
 	public float inAirJumpMultiplier = 10;
 	public bool canDoubleJump = true;
-	
+	public bool myGrounded = false;
+
+	PlayerIndex player1 = PlayerIndex.One;
+
+
 	void Start () 
 	{
 		activeMovement = true;
@@ -24,9 +28,22 @@ public class PlayerMovement : MonoBehaviour
 
 	void Update () 
 	{
+		PlayerIndex controllerNumber = PlayerIndex.One;
+		GamePadState state = GamePad.GetState(player1);
 
 		motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 		motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+
+//		if (motor.inputJump) 
+//		{
+//			GamePad.SetVibration(player1, 0.1f, 0.3f);
+//		}
+
+//		if (!motor.inputJump) 
+//		{
+//			GamePad.SetVibration(player1, 0f, 0f);
+//		}
+
 
 		if (motor.jumping.baseHeight != startJumpHeight) 
 		{
@@ -51,10 +68,14 @@ public class PlayerMovement : MonoBehaviour
 		if (hit.collider.CompareTag ("Ground"))
 		{
 			canDoubleJump = true;
-			print ("touchedGround");
-
+			myGrounded = true;
+			print ("grounded");
 		}
-
+		else
+		{
+			myGrounded = false;
+			print ("air");
+		}
 	}
 	
 }

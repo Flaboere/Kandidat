@@ -5,7 +5,9 @@ public class PlayerAnim : MonoBehaviour
 {
 
 	Vector3 playerRotate;
-	public float rotateAmount = 2;
+	Vector3 playerRunRotate;
+	public float rotateAmountJump = 2;
+	public float rotateAmountRun = 2;
 	// Use this for initialization
 	void Start () 
 	{
@@ -14,21 +16,44 @@ public class PlayerAnim : MonoBehaviour
 	void FixedUpdate () 
 	{
 		CharacterController controler = GetComponent<CharacterController> ();
-		// Rotation af avatar ved hop
+		CharacterMotor motor = GetComponent<CharacterMotor> ();
+		PlayerMovement move = GetComponent<PlayerMovement> ();
+
+		// Rotation af avatar ved velocity i y, dvs. den gør det faktisk hele tiden, men hvis y er 0 ganger den bare med 0 og ingen effekt
 		playerRotate.z = controler.velocity.y;
-		
-		if (controler.velocity.x > 0)
+		playerRunRotate.z = controler.velocity.x;
+
+		if (move.myGrounded = false)
 		{
-			this.transform.rotation = Quaternion.Euler (playerRotate * -rotateAmount);
+			if (controler.velocity.x > 0)
+			{
+				this.transform.rotation = Quaternion.Euler (playerRotate * rotateAmountJump);
+			}
+				
+			if (controler.velocity.x < 0)
+			{
+				this.transform.rotation = Quaternion.Euler (playerRotate * -rotateAmountJump);
+			}
 		}
-		
-		if (controler.velocity.x < 0)
+
+		// Dette skal få player til at rotere når den løber, men reagerer også i luften; hjælp!
+		if (move.myGrounded = true)
 		{
-			this.transform.rotation = Quaternion.Euler (playerRotate * rotateAmount);
+			if (controler.velocity.x > 0)
+			{
+				this.transform.rotation = Quaternion.Euler (playerRunRotate * rotateAmountRun);
+			}
+
+
+			if (controler.velocity.x < 0)
+			{
+				this.transform.rotation = Quaternion.Euler (playerRunRotate * rotateAmountRun);
+			}
 		}
 	}
 	// Update is called once per frame
-	void Update () {
-	
+	void Update () 
+	{
+
 	}
 }

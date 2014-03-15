@@ -9,15 +9,14 @@ public class PlayerCollisions : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		charMotor = GetComponent<CharacterMotor> ();
-		playerMovement = GetComponent<PlayerMovement> ();
+		charMotor = GameObject.FindObjectOfType<CharacterMotor> ();
+		playerMovement = GameObject.FindObjectOfType<PlayerMovement> ();
 	}
 	void OnTriggerEnter(Collider hit)
 	{
 		if (hit.collider.CompareTag ("ModCube")) 
 		{
 			charMotor.movement.maxSidewaysSpeed = extraSpeedSideways;
-			print ("speeeeed");
 		}
 
 
