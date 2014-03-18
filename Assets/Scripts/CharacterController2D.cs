@@ -86,9 +86,9 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 //	- Denne function tegner en sphere med det samme information som groundCheck bruger, og gør den rød
-//	public void OnDrawGizmos()
-//	{
-//		Gizmos.color = Color.red;
-//		Gizmos.DrawWireSphere (groundCheck.position, groundRadius);
-//	}
+	public void OnDrawGizmos()
+	{
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere (groundCheck.position, groundRadius);
+	}
 }

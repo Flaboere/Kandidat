@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
 	private float inAirJumpHeight;
 	public float inAirJumpMultiplier = 10;
 	public bool canDoubleJump = true;
-	public bool myGrounded = false;
 
 	PlayerIndex player1 = PlayerIndex.One;
 
@@ -34,15 +33,17 @@ public class PlayerMovement : MonoBehaviour
 		motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 		motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
 
-//		if (motor.inputJump) 
-//		{
-//			GamePad.SetVibration(player1, 0.1f, 0.3f);
-//		}
+		if (Input.GetButtonDown ("Jump") && motor.grounded) 
+		{
+			StartCoroutine (Vibrate());
+			//skal bruge en ordentlig "grounded" for ikke at gøre det hver gang knappen trykkes
+		}
 
-//		if (!motor.inputJump) 
-//		{
-//			GamePad.SetVibration(player1, 0f, 0f);
-//		}
+
+		if (motor.grounded)
+		{
+			canDoubleJump = true;	
+		}
 
 
 		if (motor.jumping.baseHeight != startJumpHeight) 
@@ -50,33 +51,34 @@ public class PlayerMovement : MonoBehaviour
 			motor.jumping.baseHeight = startJumpHeight;
 
 		}
+
+	}
+
+	void FixedUpdate ()
+	{
 		if (!motor.grounded && canDoubleJump) 
 		{
-				if (Input.GetButtonDown ("Jump"))
+			if (Input.GetButtonDown ("Jump"))
 			{
 				motor.grounded = true;
 				motor.inputJump = true;
-				motor.jumping.baseHeight = inAirJumpHeight;
 				motor.movement.velocity.y = 0f;
+				motor.jumping.baseHeight = inAirJumpHeight;
 				canDoubleJump = false;
-
 			}
 		}
 	}
-	void OnControllerColliderHit(ControllerColliderHit hit)
+
+	IEnumerator Vibrate ()
 	{
-		if (hit.collider.CompareTag ("Ground"))
-		{
-			canDoubleJump = true;
-			myGrounded = true;
-			print ("grounded");
-		}
-		else
-		{
-			myGrounded = false;
-			print ("air");
-		}
+		GamePad.SetVibration(player1, 0.1f, 0.3f);
+		yield return new WaitForSeconds (0.3f);
+		GamePad.SetVibration (player1, 0f, 0f);
 	}
+
+
+	
+	
 	
 }
 		

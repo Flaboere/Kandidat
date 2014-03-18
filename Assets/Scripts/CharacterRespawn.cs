@@ -31,11 +31,6 @@ public class CharacterRespawn : MonoBehaviour
 		{
 			StartCoroutine (Dead());
 		}
-
-		if (hit.collider.CompareTag ("NextLevel"))
-		{
-			Application.LoadLevel ("Victory");
-		}	
 	}
 
 
