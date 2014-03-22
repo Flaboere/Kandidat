@@ -17,6 +17,7 @@ public class PlayerAlter : MonoBehaviour
 
 	public bool extraSpeed = true;
 	public bool giveJump = false;
+	public bool forcedJump = false;
 
 	PlayerIndex player1 = PlayerIndex.One;
 
@@ -53,6 +54,10 @@ public class PlayerAlter : MonoBehaviour
 			{
 				playerMovement.canDoubleJump = true;
 				StartCoroutine (Vibrate());
+			}
+			if (forcedJump)
+			{
+				charMotor.inputJump = true;
 			}
 		}
 	}

@@ -52,6 +52,11 @@ public class PlayerAnim : MonoBehaviour
 					this.transform.rotation = Quaternion.Euler (playerRunRotate * rotateAmountRun);
 				}
 		}
+
+		if (motor.grounded && controler.velocity.x == 0)
+		{
+			this.transform.rotation = Quaternion.Euler (0,0,0);
+		}
 //		print (motor.grounded);
 	}
 	// Update is called once per frame

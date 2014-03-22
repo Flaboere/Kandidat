@@ -33,6 +33,12 @@ public class PlayerMovement : MonoBehaviour
 		motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 		motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
 
+//		if (motor.grounded = false && motor.canJump && Input.GetButtonDown("Jump"))
+//		{
+//			motor.canJump = false;
+//
+//		}
+
 		if (Input.GetButtonDown ("Jump") && motor.grounded) 
 		{
 			StartCoroutine (Vibrate());
@@ -58,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (!motor.grounded && canDoubleJump) 
 		{
-			if (Input.GetButtonDown ("Jump"))
+			if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
 			{
 				motor.grounded = true;
 				motor.inputJump = true;

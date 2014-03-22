@@ -7,6 +7,13 @@ public class CharacterRespawn : MonoBehaviour
 	public Transform spawnpoint;
 	public float spawnTimer;
 
+	public float baseMoveSpeed;
+	public float baseGroundAccel;
+
+	public float baseAirAccel;
+	public float baseJumpHeight;
+	public float baseExtraJumpHeight;
+
 	PlayerIndex player1 = PlayerIndex.One;
 
 		// Use this for initialization
@@ -30,10 +37,21 @@ public class CharacterRespawn : MonoBehaviour
 		if (hit.collider.CompareTag ("Kill"))
 		{
 			StartCoroutine (Dead());
+			StartCoroutine (Reset ());
 		}
 	}
 
+	IEnumerator Reset()
+	{
+		CharacterMotor motor = GetComponent<CharacterMotor> ();
 
+		motor.movement.maxSidewaysSpeed = baseMoveSpeed;
+		motor.movement.maxGroundAcceleration = baseGroundAccel;
+		motor.movement.maxAirAcceleration = baseAirAccel;
+		motor.jumping.baseHeight = baseJumpHeight;
+		motor.jumping.extraHeight = baseExtraJumpHeight;
+		yield return new WaitForSeconds (0);
+	}
 
 	IEnumerator Dead()
 	{

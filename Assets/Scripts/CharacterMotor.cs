@@ -180,6 +180,8 @@ public class CharacterMotor : MonoBehaviour
     [System.NonSerialized]
     public bool grounded = true;
 
+	public bool canJump = true;
+
     [System.NonSerialized]
     public Vector3 groundNormal = Vector3.zero;
 
@@ -331,6 +333,7 @@ public class CharacterMotor : MonoBehaviour
         else if(!grounded && IsGroundedTest())
         {
             grounded = true;
+			canJump = true;
             jumping.jumping = false;
             SubtractNewPlatformVelocity();
 
