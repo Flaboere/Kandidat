@@ -78,7 +78,7 @@ public class CharacterControl : MonoBehaviour
 //		float axis = Input.GetAxis ("RT");
 
 //		print (axis);
-		print (rigidbody.velocity.x);
+//		print (rigidbody.velocity.x);
 	}
 
 	public void OnDrawGizmos()
