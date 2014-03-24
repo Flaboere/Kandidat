@@ -6,7 +6,7 @@ public class CharacterController2D : MonoBehaviour
 
 	public float maxSpeed = 10f;
 //	bool facingRight = true; - har med animation at gøre, ikke brugt
-	bool grounded = false;
+	public bool grounded = false;
 	public Transform groundCheck;
 	float groundRadius = 0.2f;
 	public LayerMask whatIsGround;
@@ -15,6 +15,8 @@ public class CharacterController2D : MonoBehaviour
 	Vector3 playerRotate;
 	public float rotateAmount = 2;
 	bool jumpPickup = false;
+
+	public float gravity = 9.81f;
 	// Use this for initialization
 	void Start () 
 	{
@@ -72,7 +74,15 @@ public class CharacterController2D : MonoBehaviour
 		if (grounded)
 		{
 			this.transform.rotation = Quaternion.Euler (0,0,0);
+
+//			rigidbody.velocity = new Vector2 (rigidbody.velocity.x, -gravity);
 		}
+
+		if (grounded = false)
+		{
+			rigidbody.AddForce (new Vector3(0, -gravity, 0), ForceMode.Force);
+		}
+
 
 		// Bestemmer grounded
 		grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;

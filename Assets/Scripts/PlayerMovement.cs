@@ -13,6 +13,12 @@ public class PlayerMovement : MonoBehaviour
 	public float inAirJumpMultiplier = 10;
 	public bool canDoubleJump = true;
 
+//	public bool canSprint = true;
+//	public float sprintMoveSpeed = 15;
+//	public float sprintMoveAccel = 15;
+//	public float sprintAirAccel = 15;
+//	public bool sprinting = false;
+
 	PlayerIndex player1 = PlayerIndex.One;
 
 
@@ -58,10 +64,6 @@ public class PlayerMovement : MonoBehaviour
 
 		}
 
-	}
-
-	void FixedUpdate ()
-	{
 		if (!motor.grounded && canDoubleJump) 
 		{
 			if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
@@ -73,7 +75,36 @@ public class PlayerMovement : MonoBehaviour
 				canDoubleJump = false;
 			}
 		}
+
+
+		// Sprint - fungerer meget dårligt, for mange variabler.
+//		if (canSprint = true)
+//		{
+//			if (Input.GetAxis ("RT") < -0.2)
+//			{
+//				motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
+//				motor.movement.maxGroundAcceleration = sprintMoveAccel;
+//				motor.movement.maxAirAcceleration = sprintAirAccel;
+//				sprinting = true;
+//				print ("Sprint");
+//			}
+//			if (Input.GetAxis ("RT") > -0.2 && sprinting)
+//			{
+//				
+//				motor.movement.maxSidewaysSpeed -= sprintMoveSpeed;
+//				motor.movement.maxGroundAcceleration -= sprintMoveAccel;
+//				motor.movement.maxAirAcceleration -= sprintAirAccel;
+//				sprinting = false;
+//			}
+//		
+//		}
 	}
+
+	void FixedUpdate ()
+	{
+
+	}
+
 
 	IEnumerator Vibrate ()
 	{

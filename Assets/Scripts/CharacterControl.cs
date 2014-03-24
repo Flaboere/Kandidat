@@ -6,13 +6,18 @@ public class CharacterControl : MonoBehaviour
 {
 
 	public float speed = 10f;
-	float force;
+
 	public float gravity = 9.81f;
 	public float maxSpeed = 10f;
 	public float maxSpeedBoost = 10f;
 	public float boost = 50;
+	float force;
 
-	bool grounded = false;
+	public float drag= 2;
+	public float airDrag = 4;
+	public float jumpForce = 50;
+
+	public bool grounded = false;
 	public Transform groundCheck;
 	public LayerMask whatIsGround;
 	float groundRadius = 0.2f;
@@ -27,64 +32,64 @@ public class CharacterControl : MonoBehaviour
 	{
 
 	}
+
+	void Update ()
+	{
+		grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;
+	}
 	
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
 
-		grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;
+
+
 
 		// Bevægelse i X, tilføjer kraft, men tilføjer også kraft i Y (gravity)
 		inputDir = new Vector3 (Input.GetAxis ("Horizontal"), 0, 0);
-		rigidbody.AddForce(new Vector3(inputDir.x * force, -gravity, 0), ForceMode.Force);
+		rigidbody.AddForce(new Vector3(inputDir.x * speed, 0, 0), ForceMode.Force);
 
+		print (inputDir);
 		// Styrer max fart, samt "gravity" hvis man er grounded eller ikke grounded
-//		rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed), 0, 0);
 
-		if (grounded)
-		{
-			rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed), 0, 0);
-			inAir = false;
-		}
+//		if (grounded)
+//		{
+//			rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed), rigidbody.velocity.y, 0);
+//			rigidbody.drag = drag;
+//			inAir = false;
+//		}
 
-		if (!grounded)
-		{
-			rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed), -gravity, 0);
-			inAir = true;
-		}
+//		if (!grounded)
+//		{
+//			rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed), rigidbody.velocity.y, 0);
+//			rigidbody.AddForce (new Vector3 (0, -gravity, 0), ForceMode.Force);
+//			rigidbody.drag = airDrag;
+//			inAir = true;
+//		}
 
 		// Sprint
-		if (Input.GetAxis ("RT") < -0.2)
-		{
-			force = boost;
-			maxSpeed = 20f;
-
-		}
-		else
-		{
-			force = speed;
-			maxSpeed = 10f;
-		}
-
-		// Debug right trigger
-//		if (Input.GetAxis ("RT")>-0.5)
+//		if (Input.GetAxis ("RT") < -0.2)
 //		{
-//			print ("Half");
+//			force = boost;
+//			maxSpeed = 20f;
+//
 //		}
-//		if (Input.GetAxis ("RT")<-0.5)
+//		else
 //		{
-//			print ("Whole");
+//			force = speed;
+//			maxSpeed = 10f;
 //		}
-//		float axis = Input.GetAxis ("RT");
 
-//		print (axis);
+
 //		print (rigidbody.velocity.x);
+//		print (grounded);
+
 	}
 
-	public void OnDrawGizmos()
-	{
-		Gizmos.color = Color.red;
-		Gizmos.DrawWireSphere (groundCheck.position, groundRadius);
-	}
+//	public void OnDrawGizmos()
+//	{
+//		Gizmos.color = Color.red;
+//		Gizmos.DrawWireSphere (groundCheck.position, groundRadius);
+//	}
 
 }
