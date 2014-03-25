@@ -4,22 +4,31 @@ using System.Collections;
 public class ControllerTest : MonoBehaviour 
 {
 
-	public bool activeMovement = true;
+	private bool activeMovement = true;
 
 	public float speed = 10;
 	public float maxSpeed = 10;
 
 	public float jumpForce = 10;
 	private float jumpPower;
-	public bool jumpKeyDown;
-	public bool jumping;
-	public bool jumpingUp;
+//	public bool jumpingUp;
+	public float jumpMaxDuration = 2;
+	public bool jumping = false;
+	private bool jumpReleased = true;
 
-	public float gravity;
+	private bool jumpCor = false;
+
+	public bool jumpKeyDown = false;
+
+	private KeyCode jumpKey = KeyCode.Joystick1Button0;
+
+
+
+	private float gravity;
 	public float gravityGrounded = 0.05f;
 	public float gravityAir = 9.18f;
 
-	private KeyCode JumpKey = KeyCode.Joystick1Button0;
+
 
 
 	private bool grounded = false;
@@ -42,7 +51,7 @@ public class ControllerTest : MonoBehaviour
 		{
 			grounded = Physics.OverlapSphere(groundCheck.position, groundRadius, whatIsGround).Length > 0;
 
-			inputDir = new Vector3 (Input.GetAxis("Horizontal"), 0, 0).normalized;
+			inputDir = new Vector3 (Input.GetAxis("Horizontal"), 0, 0);
 
 			// Sætter gravity; den skal være meget lidt når grounded, ellers kan man ikke bevæge sig
 			if (!grounded)
@@ -56,24 +65,74 @@ public class ControllerTest : MonoBehaviour
 //				jumpPower = 0f;
 			}
 
-			if (grounded && Input.GetButtonDown ("Jump"))
+			if(Input.GetKey(jumpKey) && !jumpKeyDown && grounded && jumpReleased)
 			{
-				rigidbody.velocity = new Vector3 (rigidbody.velocity.x, 0, 0);
-				jumpingUp = true;
-				jumping = true;
+				jumpReleased = false;
+				jumpKeyDown = true;
+			}
+			
+			if(Input.GetKey(jumpKey) && !jumpKeyDown && !grounded && jumpReleased)
+			{
+				jumpReleased = false;
+				jumpKeyDown = true;
+			}
+
+//			if (Input.GetKey(jumpKey))
+//			{
+//				jumpKeyDown = true;
+//			}
+
+			if (!Input.GetKey(jumpKey))
+			{
+				jumpKeyDown = false;
+				jumping = false;
+			}
+
+			if(Input.GetKeyUp(jumpKey))
+			{
+				jumpReleased = true;
+			}
+
+			if (grounded && jumpKeyDown && !jumpCor)
+			{
+//				rigidbody.velocity = new Vector3 (rigidbody.velocity.x, 0, 0);
+//				jumpingUp = true;
+//				jumping = true;
+				StartCoroutine (Jump());
+			}
+
+			if (jumping)
+			{
 				jumpPower = jumpForce;
 			}
-
-			if (jumpingUp && Input.GetButtonUp("Jump"))
+			else
 			{
-				jumpingUp = false;
+				if(jumpPower > 0 && !grounded)
+				{
+					jumpPower -= Time.deltaTime * 40;
+				}
+				else
+				{
+					jumpPower = 0;
+				}
 			}
+//			if (jumpingUp && Input.GetButtonUp("Jump"))
+//			{
+//				jumpingUp = false;
+//			}
 
-			if (!grounded && !jumpingUp)
+//			if (!grounded && !jumpingUp)
+//			{
+//				jumpPower -= Time.deltaTime * 20;
+//			}
+			if (jumpKeyDown)
 			{
-				jumpPower -= Time.deltaTime * 20;
+				print ("jumpDown");
 			}
-
+			if (!jumpKeyDown)
+			{
+				print ("jumpUp");
+			}
 		}
 	}
 
@@ -89,7 +148,7 @@ public class ControllerTest : MonoBehaviour
 //			if (jumpingUp)
 //			{
 				rigidbody.AddForce(new Vector3(0, jumpPower, 0), ForceMode.VelocityChange);
-				jumping = false;
+				
 //			}
 		
 			
@@ -97,12 +156,20 @@ public class ControllerTest : MonoBehaviour
 
 	}
 
+	IEnumerator Jump()
+	{
+		jumpCor = true;
+		jumping = true;
+		yield return new WaitForSeconds(jumpMaxDuration);
+		jumpKeyDown = false;
+		jumpCor = false;
+		jumping = false;
+	}
+
 
 	void LateUpdate()
 	{
 		// Begrænser hastigheden i X ved at maxe velocity.x
 		rigidbody.velocity = new Vector3 (Mathf.Clamp (rigidbody.velocity.x, -maxSpeed, maxSpeed),rigidbody.velocity.y, 0);
-
-		print (rigidbody.velocity.y);
 	}
 }
