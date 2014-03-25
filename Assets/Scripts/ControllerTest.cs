@@ -19,6 +19,8 @@ public class ControllerTest : MonoBehaviour
 	public float gravityGrounded = 0.05f;
 	public float gravityAir = 9.18f;
 
+	private KeyCode JumpKey = KeyCode.Joystick1Button0;
+
 
 	private bool grounded = false;
 	public Transform groundCheck;
