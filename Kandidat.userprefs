@@ -1,6 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\HurdleScript.cs">
+    <Files>
+      <File FileName="Assets\Scripts\CharacterCollision.cs" Line="8" Column="26" />
+      <File FileName="Assets\Scripts\HurdleScript.cs" Line="37" Column="36" />
+      <File FileName="Assets\Scripts\PlayerMovement.cs" Line="81" Column="4" />
+      <File FileName="Assets\Scripts\ForcedJump.cs" Line="29" Column="26" />
+      <File FileName="Assets\Scripts\PlayerAlter.cs" Line="10" Column="2" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -7,6 +7,13 @@ public class CharacterRespawn : MonoBehaviour
 	public Transform spawnpoint;
 	public float spawnTimer;
 
+	public int deathScorePen = 1;
+	public Score score;
+
+	private bool dead = false;
+
+	public PlayerMovement playerMov;
+
 	public float baseMoveSpeed;
 	public float baseGroundAccel;
 
@@ -20,6 +27,9 @@ public class CharacterRespawn : MonoBehaviour
 	void Start () 
 	{
 		transform.position = spawnpoint.position;
+
+		score = GameObject.FindObjectOfType<Score>();
+		playerMov = GetComponent<PlayerMovement> ();
 	}
 	
 	// Update is called once per frame
@@ -34,27 +44,19 @@ public class CharacterRespawn : MonoBehaviour
 
 	void OnControllerColliderHit(ControllerColliderHit hit)
 	{
-		if (hit.collider.CompareTag ("Kill"))
+		if (hit.collider.CompareTag ("Kill") && !dead)
 		{
 			StartCoroutine (Dead());
-			StartCoroutine (Reset ());
+			score.score -= deathScorePen;
+			dead = true;
 		}
 	}
 
-	IEnumerator Reset()
-	{
-		CharacterMotor motor = GetComponent<CharacterMotor> ();
 
-		motor.movement.maxSidewaysSpeed = baseMoveSpeed;
-		motor.movement.maxGroundAcceleration = baseGroundAccel;
-		motor.movement.maxAirAcceleration = baseAirAccel;
-		motor.jumping.baseHeight = baseJumpHeight;
-		motor.jumping.extraHeight = baseExtraJumpHeight;
-		yield return new WaitForSeconds (0);
-	}
 
 	IEnumerator Dead()
 	{
+		playerMov.canMove = false;
 		GamePad.SetVibration(player1, 0.2f, 0.4f);
 		yield return new WaitForSeconds (0.1f);
 		GamePad.SetVibration(player1, 0.0f, 0.0f);
@@ -62,6 +64,8 @@ public class CharacterRespawn : MonoBehaviour
 		yield return new WaitForSeconds (spawnTimer);
 		transform.position = spawnpoint.position;
 		renderer.enabled = true;
+		dead = false;
+		playerMov.canMove = true;
 	}
 
 }

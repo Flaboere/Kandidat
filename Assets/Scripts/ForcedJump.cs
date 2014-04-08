@@ -3,23 +3,29 @@ using System.Collections;
 
 public class ForcedJump : MonoBehaviour 
 {
+	
+	public CharacterMotor motor;
 
-	public float force = 1;
+	public Vector3 direction = new Vector3(1,1,0);
+	public float force = 100;
 
 	// Use this for initialization
 	void Start () 
 	{
-	
+		motor = GameObject.FindObjectOfType<CharacterMotor> ();
 	}
 
-	void OnTriggerStay (Collider other)
-	{
-		other.rigidbody.AddForce (Vector3.up * force, ForceMode.Force);
-	}
+
 
 	// Update is called once per frame
 	void Update () 
 	{
-	
+		
+	}
+
+	void OnTriggerEnter (Collider hit)
+	{
+		motor.movement.velocity = direction * force;
+		motor.grounded = false;
 	}
 }

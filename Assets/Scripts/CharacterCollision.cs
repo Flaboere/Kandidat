@@ -3,48 +3,20 @@ using System.Collections;
 
 public class CharacterCollision : MonoBehaviour 
 {
-	public Transform spawnpoint;
-	public Camera camera;
-	private CameraShake camShake;
-	public float spawnTimer;
-//	private Quaternion cameraRotation;
-		// Use this for initialization
-	void Start () 
-	{
-//		cameraRotation = camera.transform.rotation;
-		camShake = camera.GetComponent <CameraShake>();
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
+	public float pushPower = 2.0F;
 
-	}
-	void OnControllerColliderHit(ControllerColliderHit hit)
+	void OnControllerColliderHit(ControllerColliderHit hit) 
 	{
-		if (hit.collider.CompareTag ("Kill"))
-		{
-			StartCoroutine (Dead());
-			camShake.Shake ();
-//			camera.transform.rotation = cameraRotation;
+		Rigidbody body = hit.collider.attachedRigidbody;
 
-		}
-		if (hit.collider.CompareTag ("NextLevel"))
-		{
-			Application.LoadLevel ("Victory");
-		}
+		if (body == null || body.isKinematic)
+			return;
 		
-	}
+		if (hit.moveDirection.y < -0.3F)
+			return;
 		
+		Vector3 pushDir = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);
 
-	IEnumerator Dead()
-	{
-		Debug.Log ("About to wait");
-		renderer.enabled = false;
-		yield return new WaitForSeconds (spawnTimer);
-		transform.position = spawnpoint.position;
-		renderer.enabled = true;
-		Debug.Log ("Yo");
+		body.velocity = pushDir * pushPower;
 	}
-
 }

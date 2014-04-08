@@ -11,12 +11,43 @@ public class PlayerMovement : MonoBehaviour
 	private float startJumpHeight;
 	private float inAirJumpHeight;
 	public float inAirJumpMultiplier = 10;
+	[HideInInspector]
 	public bool canDoubleJump = true;
 
-//	public bool canSprint = true;
-//	public float sprintMoveSpeed = 15;
-//	public float sprintMoveAccel = 15;
-//	public float sprintAirAccel = 15;
+	public bool doubleJumpOn = true;
+
+	public bool canMove = true;
+
+	// floats der indeholder den speed man har når banen starter
+	private float tempSpeed;
+	private float tempMoveAccel;
+	private float tempAirAccel;
+
+	// floats for hop når man starter banen
+	private float tempBaseHeight;
+	private float tempExtraHeight;
+
+	//tillader sprint
+	public float sprintAmount = 100;
+	public float maxSprintAmount;
+	private float sprintTemp;
+	public float sprintRemove = 0.1f;
+	public float sprintRecover = 0.05f;
+	public bool canSprint = true;
+	private bool sprinting = false;
+
+	// Sprint input
+	private bool sprintButtonDown = false;
+	private bool sprintButtonUp = true;
+
+
+	// floats for sprint hastigheder
+	public bool canSprintOn = true;
+	public float sprintMoveSpeed = 15;
+	public float sprintMoveAccel = 15;
+	public float sprintAirAccel = 15;
+	public float sprintBaseHeight = 15;
+	public float sprintExtraHeight = 15;
 //	public bool sprinting = false;
 
 	PlayerIndex player1 = PlayerIndex.One;
@@ -28,81 +59,146 @@ public class PlayerMovement : MonoBehaviour
 		motor = GetComponent<CharacterMotor>();
 		startJumpHeight = motor.jumping.baseHeight;
 		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
+
+		// temp variabler brugt til sprint
+		tempSpeed = motor.movement.maxSidewaysSpeed;
+		tempMoveAccel = motor.movement.maxGroundAcceleration;
+		tempAirAccel = motor.movement.maxAirAcceleration;
+		sprintTemp = sprintAmount;
+		sprintAmount = maxSprintAmount;
+
+		// hop under sprint
+		tempBaseHeight = motor.jumping.baseHeight;
+		tempExtraHeight = motor.jumping.extraHeight;
 	}
 	
 
 	void Update () 
 	{
+		if(Input.GetKeyDown(KeyCode.F))
+		{
+			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
+			motor.grounded = false;
+		}
+
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
 
-		motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
-		motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+		// Skifter kamera baggrund når hop knappen trykkes
+//		Camera.main.backgroundColor = Input.GetButton ("Jump") ? Color.blue : Color.red;
 
+		// Input til styring
+		if (canMove)
+		{
+			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
+			motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+		}
 //		if (motor.grounded = false && motor.canJump && Input.GetButtonDown("Jump"))
 //		{
 //			motor.canJump = false;
 //
 //		}
 
+		// Vibration ved hop
 		if (Input.GetButtonDown ("Jump") && motor.grounded) 
 		{
 			StartCoroutine (Vibrate());
 			//skal bruge en ordentlig "grounded" for ikke at gøre det hver gang knappen trykkes
 		}
 
-
-		if (motor.grounded)
+		if (doubleJumpOn)
 		{
-			canDoubleJump = true;	
-		}
-
-
-		if (motor.jumping.baseHeight != startJumpHeight) 
-		{
-			motor.jumping.baseHeight = startJumpHeight;
-
-		}
-
-		if (!motor.grounded && canDoubleJump) 
-		{
-			if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+			if (motor.grounded)
 			{
-				motor.grounded = true;
-				motor.inputJump = true;
-				motor.movement.velocity.y = 0f;
-				motor.jumping.baseHeight = inAirJumpHeight;
-				canDoubleJump = false;
+				canDoubleJump = true;	
+			}
+
+
+			if (motor.jumping.baseHeight != startJumpHeight) 
+			{
+				motor.jumping.baseHeight = startJumpHeight;
+
+			}
+
+			if (!motor.grounded && canDoubleJump) 
+			{
+				if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+				{
+					StartCoroutine (DoubleJump());
+
+				}
 			}
 		}
 
 
-		// Sprint - fungerer meget dårligt, for mange variabler.
-//		if (canSprint = true)
-//		{
-//			if (Input.GetAxis ("RT") < -0.2)
-//			{
-//				motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
-//				motor.movement.maxGroundAcceleration = sprintMoveAccel;
-//				motor.movement.maxAirAcceleration = sprintAirAccel;
-//				sprinting = true;
-//				print ("Sprint");
-//			}
-//			if (Input.GetAxis ("RT") > -0.2 && sprinting)
-//			{
-//				
-//				motor.movement.maxSidewaysSpeed -= sprintMoveSpeed;
-//				motor.movement.maxGroundAcceleration -= sprintMoveAccel;
-//				motor.movement.maxAirAcceleration -= sprintAirAccel;
-//				sprinting = false;
-//			}
-//		
-//		}
+		// Sprint
+		if (canSprintOn = true)
+		{
+			// Afgør sprint input
+			if (Input.GetAxis ("RT") < -0.2)
+			{
+				sprintButtonDown = true;
+				sprintButtonUp = false;
+			}
+			else
+			{
+				sprintButtonDown = false;
+				sprintButtonUp = true;
+			}
+
+			// Sprint mekanik
+			if (sprintButtonDown && sprintAmount > 0f)
+			{
+				sprintAmount -= sprintRemove;
+				sprinting = true;
+			}
+			if (sprintButtonDown && sprintAmount <= 0f)
+			{
+				sprinting = false;
+			}
+			if (sprintButtonUp && sprintAmount < maxSprintAmount)
+			{
+				sprintAmount += sprintRecover;
+				sprinting = false;
+				
+			}
+
+			// Sprint hastigheder
+			if (sprinting)
+			{
+				motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
+				motor.movement.maxGroundAcceleration = sprintMoveAccel;
+				motor.movement.maxAirAcceleration = sprintAirAccel;
+			}
+			else
+			{
+				motor.movement.maxSidewaysSpeed = tempSpeed;
+				motor.movement.maxGroundAcceleration = tempMoveAccel;
+				motor.movement.maxAirAcceleration = tempAirAccel;
+			}
+			//				sprintAmount = sprintAmount;
+			//				motor.jumping.baseHeight = tempBaseHeight;
+			//				motor.jumping.extraHeight = tempExtraHeight;
+
+		}
 	}
 
-	void FixedUpdate ()
+	IEnumerator DoubleJump()
 	{
+		motor.movement.maxAirAcceleration = 0;
+	
+		motor.Jump();
 
+		canDoubleJump = false;
+		yield return new WaitForSeconds (0.1f);
+		motor.movement.maxAirAcceleration = tempSpeed;
+	}
+
+	IEnumerator SprintRecover()
+	{
+		yield return new WaitForSeconds (sprintRecover);
+		sprintAmount = sprintTemp;
+//		sprintAmount += 0.1f;
 	}
 
 

@@ -200,6 +200,8 @@ public class CharacterMotor : MonoBehaviour
 	public delegate void OnLandDelegate();
 	public event OnLandDelegate OnLand;
 	#endregion
+
+	private bool forceJump = false;
 	
     void Awake()
     {
@@ -487,7 +489,20 @@ public class CharacterMotor : MonoBehaviour
 			// Make sure we don't fall any faster than maxFallSpeed. This gives our character a terminal velocity.
             velocity.y = Mathf.Max(velocity.y, -movement.maxFallSpeed);
         }
-		
+
+		if (forceJump) 
+		{
+			jumping.jumping = true;
+			jumping.lastStartTime = Time.time;
+			jumping.lastButtonDownTime = -100;
+			jumping.holdingJumpButton = true;
+			
+			velocity.y = 0;
+			velocity += jumping.jumpDir * CalculateJumpVerticalSpeed(jumping.baseHeight);
+
+			forceJump = false;
+		}
+
         if(grounded)
         {
             // Jump only ifthe jump button was pressed down in the last 0.2 seconds.
@@ -536,6 +551,11 @@ public class CharacterMotor : MonoBehaviour
 
         return velocity;
     }
+
+	public void Jump()
+	{
+		forceJump = true;
+	}
 	
 	void OnControllerColliderHit(ControllerColliderHit hit)
     {

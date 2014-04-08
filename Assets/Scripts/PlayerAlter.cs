@@ -7,15 +7,7 @@ public class PlayerAlter : MonoBehaviour
 	public CharacterMotor charMotor;
 	public PlayerMovement playerMovement;
 
-	public bool extraSpeedOn = false;
-	public float extraSpeedSideways = 50f;
-	public float extraGroundAccel = 10f;
 
-	public float extraAirAccel = 10f;
-	public float extraBaseHeight = 2;
-	public float extraExtraHeight = 2;
-
-	public bool extraSpeed = true;
 	public bool giveJump = false;
 	public bool forcedJump = false;
 
@@ -39,17 +31,11 @@ public class PlayerAlter : MonoBehaviour
 
 
 
+
 	void OnTriggerEnter(Collider hit)
 	{
 		if (hit.collider.CompareTag ("Player")) 
 		{
-			if (extraSpeed && !extraSpeedOn)
-			{
-				StartCoroutine (Speed());
-				StartCoroutine (Vibrate());
-				extraSpeedOn = true;
-
-			}
 			if (giveJump == true)
 			{
 				playerMovement.canDoubleJump = true;
@@ -59,16 +45,8 @@ public class PlayerAlter : MonoBehaviour
 			{
 				charMotor.inputJump = true;
 			}
-		}
-	}
 
-	IEnumerator Speed ()
-	{
-		yield return new WaitForSeconds (0f);
-		charMotor.movement.maxSidewaysSpeed += extraSpeedSideways;
-		charMotor.movement.maxGroundAcceleration += extraGroundAccel;
-		charMotor.jumping.baseHeight += extraBaseHeight;
-		charMotor.jumping.extraHeight += extraExtraHeight;
+		}
 	}
 
 	IEnumerator Vibrate()
