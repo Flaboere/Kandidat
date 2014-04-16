@@ -46,10 +46,13 @@ public class HurdleScript : MonoBehaviour
 
 	void OnTriggerEnter (Collider hit)
 	{
-		if (!dead)
+		if (hit.gameObject.CompareTag ("Player"))
 		{
-			score.score += 1;		
-			dead = true;
+			if (!dead)
+			{
+				score.score += 1;		
+				dead = true;
+			}
 		}
 
 	}

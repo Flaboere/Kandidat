@@ -8,6 +8,8 @@ public class Score : MonoBehaviour
 
 	public Font font;
 
+	public GUIStyle color;
+
 	GUIText highScore;
 
 	// Sprintbar variabler
@@ -29,7 +31,8 @@ public class Score : MonoBehaviour
 
 	void OnGUI()
 	{
+//		GUI.contentColor = Color.black;
 		GUI.skin.font = font;
-		GUI.Label(new Rect(10,10,100,20),("Score is = " + score));
+		GUI.Label(new Rect(10,10,100,20),("Score is = " + score),color);
 	}   
 }
