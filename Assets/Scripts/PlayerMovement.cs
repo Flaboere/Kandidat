@@ -55,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
 
 	void Start () 
 	{
-		activeMovement = true;
+//		activeMovement = true;
 		motor = GetComponent<CharacterMotor>();
 		startJumpHeight = motor.jumping.baseHeight;
 		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
@@ -92,6 +92,83 @@ public class PlayerMovement : MonoBehaviour
 		{
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 			motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+
+			if (doubleJumpOn)
+			{
+				if (motor.grounded)
+				{
+					canDoubleJump = true;	
+				}
+				
+				
+				if (motor.jumping.baseHeight != startJumpHeight) 
+				{
+					motor.jumping.baseHeight = startJumpHeight;
+					
+				}
+				
+				if (!motor.grounded && canDoubleJump) 
+				{
+					if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+					{
+						StartCoroutine (DoubleJump());
+						
+					}
+				}
+			}
+			
+			
+			// Sprint
+			if (canSprintOn = true)
+			{
+				// Afgør sprint input
+				if (Input.GetAxis ("RT") < -0.2)
+				{
+					sprintButtonDown = true;
+					sprintButtonUp = false;
+				}
+				else
+				{
+					sprintButtonDown = false;
+					sprintButtonUp = true;
+				}
+				
+				// Sprint mekanik
+				if (sprintButtonDown && sprintAmount > 0f)
+				{
+					sprintAmount -= sprintRemove;
+					sprinting = true;
+				}
+				if (sprintButtonDown && sprintAmount <= 0f)
+				{
+					sprinting = false;
+				}
+				if (sprintButtonUp && sprintAmount < maxSprintAmount)
+				{
+					sprintAmount += sprintRecover;
+					sprinting = false;
+					
+				}
+				
+				// Sprint hastigheder
+				if (sprinting)
+				{
+					motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
+					motor.movement.maxGroundAcceleration = sprintMoveAccel;
+					motor.movement.maxAirAcceleration = sprintAirAccel;
+				}
+				else
+				{
+					motor.movement.maxSidewaysSpeed = tempSpeed;
+					motor.movement.maxGroundAcceleration = tempMoveAccel;
+					motor.movement.maxAirAcceleration = tempAirAccel;
+				}
+				//				sprintAmount = sprintAmount;
+				//				motor.jumping.baseHeight = tempBaseHeight;
+				//				motor.jumping.extraHeight = tempExtraHeight;
+				
+			}
+
 		}
 //		if (motor.grounded = false && motor.canJump && Input.GetButtonDown("Jump"))
 //		{
@@ -99,88 +176,7 @@ public class PlayerMovement : MonoBehaviour
 //
 //		}
 
-		// Vibration ved hop
-		if (Input.GetButtonDown ("Jump") && motor.grounded) 
-		{
-			StartCoroutine (Vibrate());
-			//skal bruge en ordentlig "grounded" for ikke at gøre det hver gang knappen trykkes
-		}
 
-		if (doubleJumpOn)
-		{
-			if (motor.grounded)
-			{
-				canDoubleJump = true;	
-			}
-
-
-			if (motor.jumping.baseHeight != startJumpHeight) 
-			{
-				motor.jumping.baseHeight = startJumpHeight;
-
-			}
-
-			if (!motor.grounded && canDoubleJump) 
-			{
-				if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
-				{
-					StartCoroutine (DoubleJump());
-
-				}
-			}
-		}
-
-
-		// Sprint
-		if (canSprintOn = true)
-		{
-			// Afgør sprint input
-			if (Input.GetAxis ("RT") < -0.2)
-			{
-				sprintButtonDown = true;
-				sprintButtonUp = false;
-			}
-			else
-			{
-				sprintButtonDown = false;
-				sprintButtonUp = true;
-			}
-
-			// Sprint mekanik
-			if (sprintButtonDown && sprintAmount > 0f)
-			{
-				sprintAmount -= sprintRemove;
-				sprinting = true;
-			}
-			if (sprintButtonDown && sprintAmount <= 0f)
-			{
-				sprinting = false;
-			}
-			if (sprintButtonUp && sprintAmount < maxSprintAmount)
-			{
-				sprintAmount += sprintRecover;
-				sprinting = false;
-				
-			}
-
-			// Sprint hastigheder
-			if (sprinting)
-			{
-				motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
-				motor.movement.maxGroundAcceleration = sprintMoveAccel;
-				motor.movement.maxAirAcceleration = sprintAirAccel;
-			}
-			else
-			{
-				motor.movement.maxSidewaysSpeed = tempSpeed;
-				motor.movement.maxGroundAcceleration = tempMoveAccel;
-				motor.movement.maxAirAcceleration = tempAirAccel;
-			}
-			//				sprintAmount = sprintAmount;
-			//				motor.jumping.baseHeight = tempBaseHeight;
-			//				motor.jumping.extraHeight = tempExtraHeight;
-
-		}
 	}
 
 	IEnumerator DoubleJump()
@@ -194,12 +190,12 @@ public class PlayerMovement : MonoBehaviour
 		motor.movement.maxAirAcceleration = tempSpeed;
 	}
 
-	IEnumerator SprintRecover()
-	{
-		yield return new WaitForSeconds (sprintRecover);
-		sprintAmount = sprintTemp;
-//		sprintAmount += 0.1f;
-	}
+//	IEnumerator SprintRecover()
+//	{
+//		yield return new WaitForSeconds (sprintRecover);
+//		sprintAmount = sprintTemp;
+////		sprintAmount += 0.1f;
+//	}
 
 
 	IEnumerator Vibrate ()

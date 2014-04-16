@@ -13,6 +13,7 @@ public class CharacterRespawn : MonoBehaviour
 	private bool dead = false;
 
 	public PlayerMovement playerMov;
+	public CharacterMotor motor;
 
 	public float baseMoveSpeed;
 	public float baseGroundAccel;
@@ -30,6 +31,7 @@ public class CharacterRespawn : MonoBehaviour
 
 		score = GameObject.FindObjectOfType<Score>();
 		playerMov = GetComponent<PlayerMovement> ();
+		motor = GetComponent<CharacterMotor> ();
 	}
 	
 	// Update is called once per frame
@@ -38,7 +40,6 @@ public class CharacterRespawn : MonoBehaviour
 
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
-
 	}
 
 
@@ -57,8 +58,9 @@ public class CharacterRespawn : MonoBehaviour
 	IEnumerator Dead()
 	{
 		playerMov.canMove = false;
+		renderer.enabled = false;
 		GamePad.SetVibration(player1, 0.2f, 0.4f);
-		yield return new WaitForSeconds (0.1f);
+		yield return new WaitForSeconds (0.3f);
 		GamePad.SetVibration(player1, 0.0f, 0.0f);
 		renderer.enabled = false;
 		yield return new WaitForSeconds (spawnTimer);
