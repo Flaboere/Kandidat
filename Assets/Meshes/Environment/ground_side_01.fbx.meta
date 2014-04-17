@@ -6,9 +6,89 @@ ModelImporter:
     100000: //RootNode
     100002: ground_side_01
     100004: ground_side_grass_01
+    100006: ground_side_04
+    100008: polySurface1
+    100010: polySurface10
+    100012: polySurface11
+    100014: polySurface12
+    100016: polySurface13
+    100018: polySurface14
+    100020: polySurface15
+    100022: polySurface16
+    100024: polySurface17
+    100026: polySurface18
+    100028: polySurface19
+    100030: polySurface2
+    100032: polySurface3
+    100034: polySurface4
+    100036: polySurface5
+    100038: polySurface6
+    100040: polySurface7
+    100042: polySurface8
+    100044: polySurface9
+    100046: transform1
+    100048: transform10
+    100050: transform11
+    100052: transform12
+    100054: transform13
+    100056: transform14
+    100058: transform15
+    100060: transform16
+    100062: transform17
+    100064: transform18
+    100066: transform19
+    100068: transform2
+    100070: transform20
+    100072: transform3
+    100074: transform4
+    100076: transform5
+    100078: transform6
+    100080: transform7
+    100082: transform8
+    100084: transform9
     400000: //RootNode
     400002: ground_side_01
     400004: ground_side_grass_01
+    400006: ground_side_04
+    400008: polySurface1
+    400010: polySurface10
+    400012: polySurface11
+    400014: polySurface12
+    400016: polySurface13
+    400018: polySurface14
+    400020: polySurface15
+    400022: polySurface16
+    400024: polySurface17
+    400026: polySurface18
+    400028: polySurface19
+    400030: polySurface2
+    400032: polySurface3
+    400034: polySurface4
+    400036: polySurface5
+    400038: polySurface6
+    400040: polySurface7
+    400042: polySurface8
+    400044: polySurface9
+    400046: transform1
+    400048: transform10
+    400050: transform11
+    400052: transform12
+    400054: transform13
+    400056: transform14
+    400058: transform15
+    400060: transform16
+    400062: transform17
+    400064: transform18
+    400066: transform19
+    400068: transform2
+    400070: transform20
+    400072: transform3
+    400074: transform4
+    400076: transform5
+    400078: transform6
+    400080: transform7
+    400082: transform8
+    400084: transform9
     2300000: ground_side_01
     2300002: ground_side_grass_01
     3300000: ground_side_01
