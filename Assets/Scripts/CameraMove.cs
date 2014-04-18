@@ -11,6 +11,8 @@ public class CameraMove : MonoBehaviour
 	private float curVel;
 	public float smoothTime = 1f;
 	public float offSetY;
+
+	public float maxSpeed = 5f;
 	// Use this for initialization
 	void Start () 
 	{
@@ -27,7 +29,7 @@ public class CameraMove : MonoBehaviour
 		transform.position = transform.position + speed * Time.deltaTime;
 		transform.position = new Vector3 (transform.position.x, smoothY, transform.position.z);
 
-		if (speed.magnitude > 10f) 
+		if (speed.magnitude > maxSpeed) 
 		{
 			acceleration = Vector3.zero;
 			accelRate = Vector3.zero;
