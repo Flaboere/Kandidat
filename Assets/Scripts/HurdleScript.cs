@@ -42,6 +42,7 @@ public class HurdleScript : MonoBehaviour
 				}
 			}
 		}
+		print (transform.rotation.eulerAngles.z);
 	}
 
 	void OnTriggerEnter (Collider hit)
