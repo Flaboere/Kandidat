@@ -3,7 +3,7 @@ using System.Collections;
 
 public class HurdleScript : MonoBehaviour 
 {
-
+//	public bool isCeiling = false;
 	public bool dead = false;
 
 	public Renderer[] renderers;
@@ -22,14 +22,14 @@ public class HurdleScript : MonoBehaviour
 	void Update () 
 	{
 		// "Dør" hvis den vælter
-		if (!gameObject.CompareTag ("Ceiling"))
-		{
-			if (transform.rotation.z > breakAngle && !dead || transform.rotation.z < -breakAngle && !dead)
+//		if (!isCeiling)
+//		{
+			if ((transform.rotation.eulerAngles.z > breakAngle || transform.rotation.eulerAngles.z < -breakAngle) && !dead)
 			{
 				dead = true;
 				score.score -= 1;
 			}
-		}
+//		}
 
 		// Slukker renderer hvis den dør
 		if (dead)

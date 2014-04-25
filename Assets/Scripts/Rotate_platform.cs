@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Rotate : MonoBehaviour 
+public class Rotate_platform : MonoBehaviour 
 {
 	public float speed = 45f;
 	public Vector3 direction;
