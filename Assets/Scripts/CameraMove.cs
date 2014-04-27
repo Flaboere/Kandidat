@@ -24,7 +24,7 @@ public class CameraMove : MonoBehaviour
 	{
 		smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
 
-		acceleration = acceleration + accelRate * Time.deltaTime;
+//		acceleration = acceleration + accelRate * Time.deltaTime;
 		speed = speed + acceleration * Time.deltaTime;
 		transform.position = transform.position + speed * Time.deltaTime;
 		transform.position = new Vector3 (transform.position.x, smoothY, transform.position.z);
