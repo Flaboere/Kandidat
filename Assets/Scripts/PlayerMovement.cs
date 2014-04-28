@@ -9,10 +9,12 @@ public class PlayerMovement : MonoBehaviour
 	public bool activeMovement = true;
 	private CharacterMotor motor;
 	private float startJumpHeight;
-	private float inAirJumpHeight;
-	public float inAirJumpMultiplier = 10;
+//	private float inAirJumpHeight;
+//	public float inAirJumpMultiplier = 10;
 	[HideInInspector]
 	public bool canDoubleJump = true;
+
+	public bool extraJump = false;
 
 	public bool doubleJumpOn = true;
 
@@ -58,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
 //		activeMovement = true;
 		motor = GetComponent<CharacterMotor>();
 		startJumpHeight = motor.jumping.baseHeight;
-		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
+//		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
 
 		// temp variabler brugt til sprint
 		tempSpeed = motor.movement.maxSidewaysSpeed;
@@ -75,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
 
 	void Update () 
 	{
+		// Eksempel på at tvinge spiller til at hoppe
 		if(Input.GetKeyDown(KeyCode.F))
 		{
 			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
@@ -106,7 +109,8 @@ public class PlayerMovement : MonoBehaviour
 					motor.jumping.baseHeight = startJumpHeight;
 					
 				}
-				
+
+				// Doublejump
 				if (!motor.grounded && canDoubleJump) 
 				{
 					if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
@@ -116,7 +120,20 @@ public class PlayerMovement : MonoBehaviour
 					}
 				}
 			}
+
+			// Hop pickup
+			if (motor.grounded)
+			{
+				extraJump = false;
+			}
 			
+			if (!motor.grounded && extraJump)
+			{
+				if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+				{
+					StartCoroutine (ExtraJump());
+				}
+			}
 			
 			// Sprint
 			if (canSprintOn = true)
@@ -186,6 +203,16 @@ public class PlayerMovement : MonoBehaviour
 		motor.Jump();
 
 		canDoubleJump = false;
+		yield return new WaitForSeconds (0.1f);
+		motor.movement.maxAirAcceleration = tempSpeed;
+	}
+
+	IEnumerator ExtraJump()
+	{
+		motor.movement.maxAirAcceleration = 0;
+		
+		motor.Jump();
+		extraJump = false;
 		yield return new WaitForSeconds (0.1f);
 		motor.movement.maxAirAcceleration = tempSpeed;
 	}

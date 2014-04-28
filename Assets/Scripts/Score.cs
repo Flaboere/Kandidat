@@ -6,6 +6,8 @@ public class Score : MonoBehaviour
 	// Score variabler
 	public int score;
 
+	public int penalty = 3;
+
 	public Font font;
 
 	public GUIStyle color;
@@ -34,5 +36,6 @@ public class Score : MonoBehaviour
 //		GUI.contentColor = Color.black;
 		GUI.skin.font = font;
 		GUI.Label(new Rect(10,10,100,20),("Score is = " + score),color);
+		GUI.Label(new Rect(10,30,100,20),("Penalty: " + penalty),color);
 	}   
 }

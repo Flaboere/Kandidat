@@ -38,7 +38,8 @@ public class PlayerAlter : MonoBehaviour
 		{
 			if (giveJump == true)
 			{
-				playerMovement.canDoubleJump = true;
+//				playerMovement.canDoubleJump = true;
+				playerMovement.extraJump = true;
 				StartCoroutine (Vibrate());
 			}
 			if (forcedJump)

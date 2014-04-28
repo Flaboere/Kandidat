@@ -7,7 +7,12 @@ public class HurdleScript : MonoBehaviour
 	public bool activated = false;
 	public bool dead = false;
 
+	public int scoreAdd = 100;
+	public int scoreRemove = 75;
+
 	public Renderer[] renderers;
+
+	public CameraMove camMove;
 
 	public float breakAngle;
 
@@ -15,6 +20,7 @@ public class HurdleScript : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
+		camMove = GameObject.FindObjectOfType<CameraMove> ();
 		score = GameObject.FindObjectOfType<Score>();
 		renderers = GetComponentsInChildren<Renderer> ();
 		StartCoroutine (Activation ());
@@ -24,14 +30,17 @@ public class HurdleScript : MonoBehaviour
 	void Update () 
 	{
 		// "Dør" hvis den vælter
-		if (activated)
-		{
-			if ((transform.rotation.eulerAngles.z > breakAngle || transform.rotation.eulerAngles.z < -breakAngle) && !dead)
+
+
+
+			if (Vector3.Dot(transform.up, Vector3.up) < breakAngle && !dead)
 			{
 				dead = true;
-				score.score -= 1;
+				score.score -= scoreRemove;
+				score.penalty -=1;
+				camMove.camStopped = true;
 			}
-		}
+
 
 		// Slukker renderer hvis den dør
 		if (dead)
@@ -44,7 +53,6 @@ public class HurdleScript : MonoBehaviour
 				}
 			}
 		}
-		print (transform.rotation.eulerAngles.z);
 	}
 
 	IEnumerator Activation ()
@@ -59,7 +67,7 @@ public class HurdleScript : MonoBehaviour
 		{
 			if (!dead)
 			{
-				score.score += 1;		
+				score.score += scoreAdd;		
 				dead = true;
 			}
 		}
