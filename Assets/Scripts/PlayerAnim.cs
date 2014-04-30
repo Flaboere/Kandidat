@@ -8,18 +8,23 @@ public class PlayerAnim : MonoBehaviour
 	Vector3 playerRunRotate;
 	public float rotateAmountJump = 2;
 	public float rotateAmountRun = 2;
-	public bool runAnim = true;
-	public bool jumpAnim = true;
+//	public bool runAnim = true;
+//	public bool jumpAnim = true;
+	public CharacterController controler;
+	public CharacterMotor motor;
+	public PlayerMovement move;
 	// Use this for initialization
 	void Start () 
 	{
-	
+		controler = transform.parent.GetComponent<CharacterController> ();
+		motor = transform.parent.GetComponent<CharacterMotor> ();
+		move = transform.parent.GetComponent<PlayerMovement> ();
+		playerRotate.y = 90f;
+		playerRunRotate.y = 90f;
 	}
 	void FixedUpdate () 
 	{
-		CharacterController controler = GetComponent<CharacterController> ();
-		CharacterMotor motor = GetComponent<CharacterMotor> ();
-		PlayerMovement move = GetComponent<PlayerMovement> ();
+
 
 		// Rotation af avatar ved velocity i y, dvs. den gør det faktisk hele tiden, men hvis y er 0 ganger den bare med 0 og ingen effekt
 		playerRotate.z = controler.velocity.y;

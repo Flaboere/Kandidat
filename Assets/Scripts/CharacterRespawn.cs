@@ -22,13 +22,15 @@ public class CharacterRespawn : MonoBehaviour
 	public float baseJumpHeight;
 	public float baseExtraJumpHeight;
 
+	public SkinnedMeshRenderer childMesh;
+
 	PlayerIndex player1 = PlayerIndex.One;
 
 		// Use this for initialization
 	void Start () 
 	{
 		transform.position = spawnpoint.position;
-
+		childMesh = GetComponentInChildren<SkinnedMeshRenderer> ();
 		score = GameObject.FindObjectOfType<Score>();
 		playerMov = GetComponent<PlayerMovement> ();
 		motor = GetComponent<CharacterMotor> ();
@@ -58,14 +60,13 @@ public class CharacterRespawn : MonoBehaviour
 	IEnumerator Dead()
 	{
 		playerMov.canMove = false;
-		renderer.enabled = false;
+		childMesh.renderer.enabled = false;
 		GamePad.SetVibration(player1, 0.2f, 0.4f);
 		yield return new WaitForSeconds (0.3f);
 		GamePad.SetVibration(player1, 0.0f, 0.0f);
-		renderer.enabled = false;
 		yield return new WaitForSeconds (spawnTimer);
 		transform.position = spawnpoint.position;
-		renderer.enabled = true;
+		childMesh.renderer.enabled = true;
 		dead = false;
 		playerMov.canMove = true;
 	}

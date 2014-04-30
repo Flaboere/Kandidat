@@ -58,7 +58,7 @@ ModelImporter:
     400050: spine01_jnt
     400052: spine02_jnt
     4300000: polySurface46
-    7400000: Take 001
+    7400000: Walk_01
     9500000: //RootNode
     13700000: polySurface46
   materials:
@@ -75,7 +75,87 @@ ModelImporter:
     animationScaleError: .5
     animationWrapMode: 0
     extraExposedTransformPaths: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Walk_01
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 25
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: polySurface46
+        weight: 0
+      - path: root_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/L_thight_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/L_thight_jnt/L_knee_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/L_thight_jnt/L_knee_jnt/L_ankle_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/L_thight_jnt/L_knee_jnt/L_ankle_jnt/L_ball_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/R_thight_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/R_thight_jnt/R_knee_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/R_thight_jnt/R_knee_jnt/R_ankle_jnt
+        weight: 1
+      - path: root_jnt/hip_jnt/R_thight_jnt/R_knee_jnt/R_ankle_jnt/R_ball_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/head_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/head_jnt/hat_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/head_jnt/jaw_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/head_jnt/jaw_jnt/chin_jnt
+        weight: 0
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/L_clavicle_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/L_clavicle_jnt/L_shoulder_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/L_clavicle_jnt/L_shoulder_jnt/L_elbow_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/L_clavicle_jnt/L_shoulder_jnt/L_elbow_jnt/L_wrist_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/R_clavicle_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/R_clavicle_jnt/R_shoulder_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/R_clavicle_jnt/R_shoulder_jnt/R_elbow_jnt
+        weight: 1
+      - path: root_jnt/spine01_jnt/spine02_jnt/lowerNeck_jnt/R_clavicle_jnt/R_shoulder_jnt/R_elbow_jnt/R_wrist_jnt
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
     isReadable: 1
   meshes:
     lODScreenPercentages: []
