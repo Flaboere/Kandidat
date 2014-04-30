@@ -30,16 +30,13 @@ public class HurdleScript : MonoBehaviour
 	void Update () 
 	{
 		// "Dør" hvis den vælter
-
-
-
-			if (Vector3.Dot(transform.up, Vector3.up) < breakAngle && !dead)
-			{
-				dead = true;
-				score.score -= scoreRemove;
-				score.penalty -=1;
-				camMove.camStopped = true;
-			}
+		if (Vector3.Dot(transform.up, Vector3.up) < breakAngle && !dead)
+		{
+			dead = true;
+			score.score -= scoreRemove;
+			score.penalty -=1;
+			camMove.camStopped = true;
+		}
 
 
 		// Slukker renderer hvis den dør
@@ -74,10 +71,7 @@ public class HurdleScript : MonoBehaviour
 
 	}
 
-//	void OnControllerColliderHit (Controller hit)
-//	{
-//		if (hit.collider.CompareTag ("Ceiling"))
-//	}
+
 
 
 }

@@ -12,13 +12,17 @@ public class PlayerMovement : MonoBehaviour
 //	private float inAirJumpHeight;
 //	public float inAirJumpMultiplier = 10;
 	[HideInInspector]
-	public bool canDoubleJump = true;
 
+	// Do i have an extra jump picked up
 	public bool extraJump = false;
 
+	// Is double jump feature activated
 	public bool doubleJumpOn = true;
 
-	public bool canMove = true;
+	// Can i double jump right now
+	public bool canDoubleJump = true;
+
+	public bool canMove = false;
 
 	// floats der indeholder den speed man har når banen starter
 	private float tempSpeed;
@@ -77,12 +81,17 @@ public class PlayerMovement : MonoBehaviour
 
 	void Update () 
 	{
-		// Eksempel på at tvinge spiller til at hoppe
-		if(Input.GetKeyDown(KeyCode.F))
+		if (Input.GetButtonDown ("Start"))
 		{
-			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
-			motor.grounded = false;
+			canMove = true;
 		}
+
+		// Eksempel på at tvinge spiller til at hoppe
+//		if(Input.GetKeyDown(KeyCode.F))
+//		{
+//			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
+//			motor.grounded = false;
+//		}
 
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
