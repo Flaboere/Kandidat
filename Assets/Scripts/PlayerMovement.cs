@@ -52,9 +52,21 @@ public class PlayerMovement : MonoBehaviour
 	public float sprintMoveSpeed = 15;
 	public float sprintMoveAccel = 15;
 	public float sprintAirAccel = 15;
-	public float sprintBaseHeight = 15;
-	public float sprintExtraHeight = 15;
+//	public float sprintBaseHeight = 15;
+//	public float sprintExtraHeight = 15;
 //	public bool sprinting = false;
+	private float sprintMoveSpeedTemp;
+	private float sprintMoveAccelTemp;
+	private float sprintAirAccelTemp;
+	public float SprintWarning1;
+	public float SprintWarning2;
+
+	// Variabler for når man er i vand
+	public bool inWater = false;
+	public float waterMoveSpeed = 5;
+	public float waterMoveAccel = 5;
+	private float waterMoveSpeedTemp;
+	private float waterMoveAccelTemp;
 
 	PlayerIndex player1 = PlayerIndex.One;
 
@@ -66,16 +78,25 @@ public class PlayerMovement : MonoBehaviour
 		startJumpHeight = motor.jumping.baseHeight;
 //		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
 
-		// temp variabler brugt til sprint
+		// temp variabler brugt til movement
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
 		tempAirAccel = motor.movement.maxAirAcceleration;
 		sprintTemp = sprintAmount;
 		sprintAmount = maxSprintAmount;
 
+		// Sprint hastigheder
+		sprintMoveSpeedTemp = tempSpeed + sprintMoveSpeed;
+		sprintMoveAccelTemp = tempMoveAccel + sprintMoveAccel;
+		sprintAirAccelTemp = tempAirAccel + sprintAirAccel;
+
 		// hop under sprint
-		tempBaseHeight = motor.jumping.baseHeight;
-		tempExtraHeight = motor.jumping.extraHeight;
+//		tempBaseHeight = motor.jumping.baseHeight;
+//		tempExtraHeight = motor.jumping.extraHeight;
+
+		// Movement speeds i vand
+		waterMoveSpeedTemp = tempSpeed - waterMoveSpeed;
+		waterMoveAccelTemp = tempMoveAccel - waterMoveAccel;
 	}
 	
 
@@ -145,65 +166,82 @@ public class PlayerMovement : MonoBehaviour
 			}
 			
 			// Sprint
-			if (canSprintOn = true)
+
+
+			// Water movement
+			if (inWater)
 			{
-				// Afgør sprint input
-				if (Input.GetAxis ("RT") < -0.2)
-				{
-					sprintButtonDown = true;
-					sprintButtonUp = false;
-				}
-				else
-				{
-					sprintButtonDown = false;
-					sprintButtonUp = true;
-				}
-				
-				// Sprint mekanik
-				if (sprintButtonDown && sprintAmount > 0f)
-				{
-					sprintAmount -= sprintRemove;
-					sprinting = true;
-				}
-				if (sprintButtonDown && sprintAmount <= 0f)
-				{
-					sprinting = false;
-				}
-				if (sprintButtonUp && sprintAmount < maxSprintAmount)
-				{
-					sprintAmount += sprintRecover;
-					sprinting = false;
-					
-				}
-				
-				// Sprint hastigheder
-				if (sprinting)
-				{
-					motor.movement.maxSidewaysSpeed = sprintMoveSpeed;
-					motor.movement.maxGroundAcceleration = sprintMoveAccel;
-					motor.movement.maxAirAcceleration = sprintAirAccel;
-				}
-				else
-				{
-					motor.movement.maxSidewaysSpeed = tempSpeed;
-					motor.movement.maxGroundAcceleration = tempMoveAccel;
-					motor.movement.maxAirAcceleration = tempAirAccel;
-				}
-				//				sprintAmount = sprintAmount;
-				//				motor.jumping.baseHeight = tempBaseHeight;
-				//				motor.jumping.extraHeight = tempExtraHeight;
-				
+				motor.movement.maxSidewaysSpeed = waterMoveSpeedTemp;
+				motor.movement.maxGroundAcceleration = waterMoveAccelTemp;
+			}
+			if (!inWater && !sprinting)
+			{
+				motor.movement.maxSidewaysSpeed = tempSpeed;
+				motor.movement.maxGroundAcceleration = tempMoveAccel;
 			}
 
 		}
-//		if (motor.grounded = false && motor.canJump && Input.GetButtonDown("Jump"))
-//		{
-//			motor.canJump = false;
-//
-//		}
 
+		if (canSprintOn && canMove)
+		{
+			// Afgør sprint input
+			if (Input.GetAxis ("RT") < -0.2)
+			{
+				sprintButtonDown = true;
+				sprintButtonUp = false;
+			}
+			else
+			{
+				sprintButtonDown = false;
+				sprintButtonUp = true;
+			}
+			
+			// Sprint mekanik
+			if (sprintButtonDown && sprintAmount > 0f)
+			{
+				sprintAmount -= sprintRemove;
+				sprinting = true;
+			}
+			if (sprintButtonDown && sprintAmount <= 0f)
+			{
+				sprinting = false;
+			}
+			if (sprintButtonUp && sprintAmount < maxSprintAmount)
+			{
+				sprintAmount += sprintRecover;
+				sprinting = false;
+				
+			}
+			
+			// Sprint hastigheder
+			if (sprinting)
+			{
+				motor.movement.maxSidewaysSpeed = sprintMoveSpeedTemp;
+				motor.movement.maxGroundAcceleration = sprintMoveAccelTemp;
+				motor.movement.maxAirAcceleration = sprintAirAccelTemp;
+			}
+			else
+			{
+				motor.movement.maxSidewaysSpeed = tempSpeed;
+				motor.movement.maxGroundAcceleration = tempMoveAccel;
+				motor.movement.maxAirAcceleration = tempAirAccel;
+			}
+
+			//Sprint vibration
+			if (!sprinting || (sprintAmount >= maxSprintAmount))
+			{
+				GamePad.SetVibration(player1, 0f, 0f);
+			}
+
+			if (sprinting && (sprintAmount < maxSprintAmount/SprintWarning1))
+			{
+				GamePad.SetVibration(player1, 0.1f, 0.3f);
+			}
+			
+		}
 
 	}
+
 
 	IEnumerator DoubleJump()
 	{
@@ -234,16 +272,30 @@ public class PlayerMovement : MonoBehaviour
 //	}
 
 
-	IEnumerator Vibrate ()
+	IEnumerator SprintVibrate ()
 	{
 		GamePad.SetVibration(player1, 0.1f, 0.3f);
 		yield return new WaitForSeconds (0.3f);
 		GamePad.SetVibration (player1, 0f, 0f);
 	}
 
-
+	void OnTriggerEnter(Collider hit)
+	{
+		if (hit.gameObject.CompareTag ("Water"))
+		{
+			inWater = true;
+			canSprintOn = false;
+		}
+	}
 	
-	
+	void OnTriggerExit(Collider hit)
+	{
+		if (hit.gameObject.CompareTag ("Water"))
+		{
+			inWater = false;
+			canSprintOn = true;
+		}
+	}
 	
 }
 		

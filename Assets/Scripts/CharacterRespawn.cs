@@ -55,6 +55,16 @@ public class CharacterRespawn : MonoBehaviour
 		}
 	}
 
+	void OnTriggerEnter (Collider hit)
+	{
+		if (hit.collider.CompareTag ("Kill") & !dead)
+		{
+			StartCoroutine (Dead());
+			score.score -= deathScorePen;
+			dead = true;
+		}
+	}
+
 
 
 	IEnumerator Dead()
