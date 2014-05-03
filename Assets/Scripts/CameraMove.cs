@@ -4,36 +4,38 @@ using System.Collections;
 public class CameraMove : MonoBehaviour 
 {
 	// Hastigheder for camera
-	public Vector3 speed;
+	private Vector3 speed;
 	public float acceleration;
-//	public Vector3 accelRate;
+	private float accelerationTemp;
 	public GameObject player;
 	private float smoothY;
+	private float speedStop;
+	public float speedStopTime;
+	private float curVel2;
 	private float curVel;
 	public float smoothTime = 1f;
 	public float offSetY;
 
-	// Temp hastigheder for camera
-//	public Vector3 tempAccel;
-//	public Vector3 tempAccelRate;
+	public CharacterRespawn respawn;
 
 	public float camStartWait = 1;
+	public float camSpawnWait = 1;
 	public bool camMoving = false;
-	public bool camStopped = false;
 
 	public float camPause = 1;
 
 	public GameObject spawn;
-//	public Vector3 startPos;
+
 
 	public float maxSpeed = 5f;
 	// Use this for initialization
 	void Start () 
 	{
+		respawn = GameObject.FindObjectOfType<CharacterRespawn> ();
 		spawn = GameObject.Find ("Spawn");
 		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
-//		tempAccel = acceleration;
-//		tempAccelRate = accelRate;
+		accelerationTemp = acceleration;
+
 	}
 	
 	// Update is called once per frame
@@ -51,7 +53,7 @@ public class CameraMove : MonoBehaviour
 
 
 	//		acceleration = acceleration + accelRate * Time.deltaTime;
-			speed.x = speed.x + acceleration * Time.deltaTime;
+			speed.x = speed.x + accelerationTemp * Time.deltaTime;
 			smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
 			transform.position = new Vector3 (transform.position.x, smoothY, transform.position.z) + speed * Time.deltaTime;
 //			transform.position = transform.position + speed * Time.deltaTime;
@@ -59,13 +61,14 @@ public class CameraMove : MonoBehaviour
 
 			if (speed.magnitude > maxSpeed) 
 			{
-				acceleration = 0f;
+				accelerationTemp = 0f;
 			}
 
-//			if (camStopped)
-//			{
-//				StartCoroutine(Camerapause());
-//			}
+			if (respawn.dead == true)
+			{
+				StartCoroutine (Camdead());
+			}
+
 		}
 	}
 
@@ -75,15 +78,15 @@ public class CameraMove : MonoBehaviour
 		camMoving = true;
 	}
 
-//	IEnumerator Camerapause()
-//	{
-//		camStopped = false;
-//		acceleration = -acceleration;
-//		accelRate = -accelRate;
-//		speed.x = speed.x/2;
-//		yield return new WaitForSeconds (camPause);
+	IEnumerator Camdead()
+	{
+
+		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
+		speed.x = speedStop;
+//		camMoving = false;
+		yield return new WaitForSeconds (respawn.spawnTimer);
+		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
 //		camMoving = true;
-//		acceleration = tempAccel;
-//		accelRate = tempAccelRate;
-//	}
+		accelerationTemp = acceleration;
+	}
 }

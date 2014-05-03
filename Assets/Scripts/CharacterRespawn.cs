@@ -10,7 +10,7 @@ public class CharacterRespawn : MonoBehaviour
 	public int deathScorePen = 1;
 	public Score score;
 
-	private bool dead = false;
+	public bool dead = false;
 
 	public PlayerMovement playerMov;
 	public CharacterMotor motor;
@@ -60,6 +60,7 @@ public class CharacterRespawn : MonoBehaviour
 		if (hit.collider.CompareTag ("Kill") & !dead)
 		{
 			StartCoroutine (Dead());
+			StartCoroutine (VibrateDead());
 			score.score -= deathScorePen;
 			dead = true;
 		}
@@ -71,14 +72,18 @@ public class CharacterRespawn : MonoBehaviour
 	{
 		playerMov.canMove = false;
 		childMesh.renderer.enabled = false;
-		GamePad.SetVibration(player1, 0.2f, 0.4f);
-		yield return new WaitForSeconds (0.3f);
-		GamePad.SetVibration(player1, 0.0f, 0.0f);
 		yield return new WaitForSeconds (spawnTimer);
 		transform.position = spawnpoint.position;
 		childMesh.renderer.enabled = true;
 		dead = false;
 		playerMov.canMove = true;
+	}
+
+	IEnumerator VibrateDead()
+	{
+		GamePad.SetVibration(player1, 0.2f, 0.4f);
+		yield return new WaitForSeconds (0.3f);
+		GamePad.SetVibration(player1, 0.0f, 0.0f);
 	}
 
 }

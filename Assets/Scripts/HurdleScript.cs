@@ -35,7 +35,6 @@ public class HurdleScript : MonoBehaviour
 			dead = true;
 			score.score -= scoreRemove;
 			score.penalty -=1;
-			camMove.camStopped = true;
 		}
 
 

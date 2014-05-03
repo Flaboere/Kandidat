@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
 //	private float inAirJumpHeight;
 //	public float inAirJumpMultiplier = 10;
 	[HideInInspector]
+	
 
 	// Do i have an extra jump picked up
 	public bool extraJump = false;
@@ -33,14 +34,17 @@ public class PlayerMovement : MonoBehaviour
 	private float tempBaseHeight;
 	private float tempExtraHeight;
 
-	//tillader sprint
-	public float sprintAmount = 100;
-	public float maxSprintAmount;
+	//variabler for sprint funktion
+	[HideInInspector]
+	public float sprintAmount = 10;
+	private float maxSprintAmount = 10;
 	private float sprintTemp;
 	public float sprintRemove = 0.1f;
 	public float sprintRecover = 0.05f;
 	public bool canSprint = true;
 	private bool sprinting = false;
+//	public float sprintVibrateTemp = 10;
+	private float sprintVibrate;
 
 	// Sprint input
 	private bool sprintButtonDown = false;
@@ -58,8 +62,7 @@ public class PlayerMovement : MonoBehaviour
 	private float sprintMoveSpeedTemp;
 	private float sprintMoveAccelTemp;
 	private float sprintAirAccelTemp;
-	public float SprintWarning1;
-	public float SprintWarning2;
+
 
 	// Variabler for når man er i vand
 	public bool inWater = false;
@@ -82,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
 		tempAirAccel = motor.movement.maxAirAcceleration;
-		sprintTemp = sprintAmount;
+//		sprintTemp = sprintAmount;
 		sprintAmount = maxSprintAmount;
 
 		// Sprint hastigheder
@@ -137,7 +140,6 @@ public class PlayerMovement : MonoBehaviour
 				if (motor.jumping.baseHeight != startJumpHeight) 
 				{
 					motor.jumping.baseHeight = startJumpHeight;
-					
 				}
 
 				// Doublejump
@@ -146,7 +148,6 @@ public class PlayerMovement : MonoBehaviour
 					if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
 					{
 						StartCoroutine (DoubleJump());
-						
 					}
 				}
 			}
@@ -164,8 +165,6 @@ public class PlayerMovement : MonoBehaviour
 					StartCoroutine (ExtraJump());
 				}
 			}
-			
-			// Sprint
 
 
 			// Water movement
@@ -228,16 +227,17 @@ public class PlayerMovement : MonoBehaviour
 			}
 
 			//Sprint vibration
-			if (!sprinting || (sprintAmount >= maxSprintAmount))
+			sprintVibrate = (maxSprintAmount - sprintAmount)/10;
+
+
+			if (sprintAmount < (maxSprintAmount/2f))
+			{
+				GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
+			}
+			if (sprintAmount >= (maxSprintAmount/3f))
 			{
 				GamePad.SetVibration(player1, 0f, 0f);
 			}
-
-			if (sprinting && (sprintAmount < maxSprintAmount/SprintWarning1))
-			{
-				GamePad.SetVibration(player1, 0.1f, 0.3f);
-			}
-			
 		}
 
 	}
@@ -271,14 +271,7 @@ public class PlayerMovement : MonoBehaviour
 ////		sprintAmount += 0.1f;
 //	}
 
-
-	IEnumerator SprintVibrate ()
-	{
-		GamePad.SetVibration(player1, 0.1f, 0.3f);
-		yield return new WaitForSeconds (0.3f);
-		GamePad.SetVibration (player1, 0f, 0f);
-	}
-
+	// Kollision for hvis spilleren er i/ude af Water
 	void OnTriggerEnter(Collider hit)
 	{
 		if (hit.gameObject.CompareTag ("Water"))
