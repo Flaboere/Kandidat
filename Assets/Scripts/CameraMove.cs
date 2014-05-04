@@ -78,15 +78,23 @@ public class CameraMove : MonoBehaviour
 		camMoving = true;
 	}
 
+	// Stopper kamera når spiller dør
 	IEnumerator Camdead()
-	{
+		{
+	
+			speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
+			speed.x = speedStop;
+			yield return new WaitForSeconds (respawn.spawnTimer);
+		}
 
-		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
-		speed.x = speedStop;
-//		camMoving = false;
-		yield return new WaitForSeconds (respawn.spawnTimer);
-		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
-//		camMoving = true;
-		accelerationTemp = acceleration;
-	}
+	// Respawner spiller (virker med korrekt Dead() i CharacterRespawn
+//	IEnumerator Camdead()
+//	{
+//
+//		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
+//		speed.x = speedStop;
+//		yield return new WaitForSeconds (respawn.spawnTimer);
+//		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
+//		accelerationTemp = acceleration;
+//	}
 }

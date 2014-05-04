@@ -230,7 +230,7 @@ public class PlayerMovement : MonoBehaviour
 			sprintVibrate = (maxSprintAmount - sprintAmount)/10;
 
 
-			if (sprintAmount < (maxSprintAmount/2f))
+			if (sprintAmount < (maxSprintAmount/2f) && sprinting)
 			{
 				GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
 			}

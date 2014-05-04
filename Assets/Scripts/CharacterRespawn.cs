@@ -12,6 +12,8 @@ public class CharacterRespawn : MonoBehaviour
 
 	public bool dead = false;
 
+	public float camDeadDistance = 15;
+
 	public PlayerMovement playerMov;
 	public CharacterMotor motor;
 
@@ -42,6 +44,11 @@ public class CharacterRespawn : MonoBehaviour
 
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
+		
+//		if (transform.position.x < (Camera.main.transform.position.x -camDeadDistance))
+//		{
+//			StartCoroutine (Dead());
+//		}
 	}
 
 
@@ -50,8 +57,6 @@ public class CharacterRespawn : MonoBehaviour
 		if (hit.collider.CompareTag ("Kill") && !dead)
 		{
 			StartCoroutine (Dead());
-			score.score -= deathScorePen;
-			dead = true;
 		}
 	}
 
@@ -61,23 +66,31 @@ public class CharacterRespawn : MonoBehaviour
 		{
 			StartCoroutine (Dead());
 			StartCoroutine (VibrateDead());
-			score.score -= deathScorePen;
-			dead = true;
 		}
 	}
 
-
-
+	// Genstarter scenen når man "dør"
 	IEnumerator Dead()
 	{
-		playerMov.canMove = false;
+		dead = true;
 		childMesh.renderer.enabled = false;
 		yield return new WaitForSeconds (spawnTimer);
-		transform.position = spawnpoint.position;
-		childMesh.renderer.enabled = true;
-		dead = false;
-		playerMov.canMove = true;
+		Application.LoadLevel ("Run_01");
 	}
+
+	// Respawner spilleren ved start hvis man dør, men resætter ikke banen
+//	IEnumerator Dead()
+//	{
+//		score.score -= deathScorePen;
+//		dead = true;
+//		playerMov.canMove = false;
+//		childMesh.renderer.enabled = false;
+//		yield return new WaitForSeconds (spawnTimer);
+//		transform.position = spawnpoint.position;
+//		childMesh.renderer.enabled = true;
+//		dead = false;
+//		playerMov.canMove = true;
+//	}
 
 	IEnumerator VibrateDead()
 	{
