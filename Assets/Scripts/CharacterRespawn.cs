@@ -12,6 +12,8 @@ public class CharacterRespawn : MonoBehaviour
 
 	public bool dead = false;
 
+	public bool canRespawn = false;
+
 	public float camDeadDistance = 15;
 
 	public PlayerMovement playerMov;
@@ -36,6 +38,7 @@ public class CharacterRespawn : MonoBehaviour
 		score = GameObject.FindObjectOfType<Score>();
 		playerMov = GetComponent<PlayerMovement> ();
 		motor = GetComponent<CharacterMotor> ();
+		motor.enabled = true;
 	}
 	
 	// Update is called once per frame
@@ -44,11 +47,23 @@ public class CharacterRespawn : MonoBehaviour
 
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
+
+		if (dead && canRespawn)
+		{
+			if (Input.GetButton("Start"))
+			{
+				Application.LoadLevel ("Run_01");
+			}
+		}
 		
-//		if (transform.position.x < (Camera.main.transform.position.x -camDeadDistance))
-//		{
-//			StartCoroutine (Dead());
-//		}
+		if (transform.position.x < (Camera.main.transform.position.x - camDeadDistance))
+		{
+			StartCoroutine (Dead());
+		}
+		if (score.penalty == 0)
+		{
+			StartCoroutine (Dead());
+		}
 	}
 
 
@@ -72,10 +87,13 @@ public class CharacterRespawn : MonoBehaviour
 	// Genstarter scenen når man "dør"
 	IEnumerator Dead()
 	{
+		playerMov.canMove = false;
+		motor.enabled = false;
 		dead = true;
 		childMesh.renderer.enabled = false;
 		yield return new WaitForSeconds (spawnTimer);
-		Application.LoadLevel ("Run_01");
+		canRespawn = true;
+//		Application.LoadLevel ("Run_01");
 	}
 
 	// Respawner spilleren ved start hvis man dør, men resætter ikke banen

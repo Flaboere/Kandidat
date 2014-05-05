@@ -24,6 +24,9 @@ public class PlayerMovement : MonoBehaviour
 	public bool canDoubleJump = true;
 
 	public bool canMove = false;
+	
+
+//	public float forwardJump = 3;
 
 	// floats der indeholder den speed man har når banen starter
 	private float tempSpeed;
@@ -129,6 +132,12 @@ public class PlayerMovement : MonoBehaviour
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 			motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
 
+//			// Test: kraft fremad i hop - problem: tilføjer fart i hver update
+//			if (motor.grounded && Input.GetButton ("Jump"))
+//			    {
+//				motor.movement.velocity.x += forwardJump;
+//				}
+
 			if (doubleJumpOn)
 			{
 				if (motor.grounded)
@@ -196,18 +205,32 @@ public class PlayerMovement : MonoBehaviour
 			}
 			
 			// Sprint mekanik
-			if (sprintButtonDown && sprintAmount > 0f)
+			if (sprintButtonDown && sprintAmount > 0f && motor.grounded)
 			{
 				sprintAmount -= sprintRemove;
 				sprinting = true;
 			}
-			if (sprintButtonDown && sprintAmount <= 0f)
+			if (sprintButtonDown && sprintAmount > 0f && !motor.grounded && sprinting)
+			{
+				sprintAmount -= sprintRemove;
+			}
+
+			if (sprintButtonDown && sprintAmount <= 0f && motor.grounded)
 			{
 				sprinting = false;
 			}
 			if (sprintButtonUp && sprintAmount < maxSprintAmount)
 			{
 				sprintAmount += sprintRecover;
+				
+			}
+			if (sprintButtonUp && sprintAmount < maxSprintAmount && motor.grounded)
+			{
+				sprinting = false;
+				
+			}
+			if (sprintButtonUp && sprintAmount >= maxSprintAmount && motor.grounded)
+			{
 				sprinting = false;
 				
 			}
@@ -230,25 +253,22 @@ public class PlayerMovement : MonoBehaviour
 			sprintVibrate = (maxSprintAmount - sprintAmount)/10;
 
 
-			if (sprintAmount < (maxSprintAmount/2f) && sprinting)
+			if (sprintAmount < (maxSprintAmount/2f) && sprintButtonDown)
 			{
 				GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
 			}
-			if (sprintAmount >= (maxSprintAmount/3f))
+			if (sprintAmount >= (maxSprintAmount/3f) && sprintButtonUp)
 			{
 				GamePad.SetVibration(player1, 0f, 0f);
 			}
 		}
-
 	}
 
 
 	IEnumerator DoubleJump()
 	{
 		motor.movement.maxAirAcceleration = 0;
-	
 		motor.Jump();
-
 		canDoubleJump = false;
 		yield return new WaitForSeconds (0.1f);
 		motor.movement.maxAirAcceleration = tempSpeed;
@@ -257,7 +277,6 @@ public class PlayerMovement : MonoBehaviour
 	IEnumerator ExtraJump()
 	{
 		motor.movement.maxAirAcceleration = 0;
-		
 		motor.Jump();
 		extraJump = false;
 		yield return new WaitForSeconds (0.1f);
@@ -279,6 +298,12 @@ public class PlayerMovement : MonoBehaviour
 			inWater = true;
 			canSprintOn = false;
 		}
+
+		if (hit.gameObject.CompareTag ("ExtraJump")) 
+		{
+			extraJump = true;
+			StartCoroutine (ExtraJumpVibrate());
+		}
 	}
 	
 	void OnTriggerExit(Collider hit)
@@ -289,7 +314,20 @@ public class PlayerMovement : MonoBehaviour
 			canSprintOn = true;
 		}
 	}
-	
+
+//	// Hvis spilleren hopper ind i ExtraJump
+//	void OnTriggerEnter(Collider extrajump)
+//	{
+//
+//	}
+
+	IEnumerator ExtraJumpVibrate()
+	{
+		GamePad.SetVibration(player1, 1f, 3f);
+		yield return new WaitForSeconds (0.3f);
+		GamePad.SetVibration(player1, 0f, 0f);
+	}
+
 }
 		
 

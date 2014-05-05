@@ -27,12 +27,15 @@ public class CameraMove : MonoBehaviour
 	public GameObject spawn;
 
 
+
+
 	public float maxSpeed = 5f;
 	// Use this for initialization
 	void Start () 
 	{
 		respawn = GameObject.FindObjectOfType<CharacterRespawn> ();
 		spawn = GameObject.Find ("Spawn");
+
 		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
 		accelerationTemp = acceleration;
 
@@ -81,7 +84,7 @@ public class CameraMove : MonoBehaviour
 	// Stopper kamera når spiller dør
 	IEnumerator Camdead()
 		{
-	
+			accelerationTemp = 0f;
 			speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
 			speed.x = speedStop;
 			yield return new WaitForSeconds (respawn.spawnTimer);
