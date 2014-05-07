@@ -12,6 +12,11 @@ public class CharacterMotor : MonoBehaviour
     bool canControl = true;
     bool useFixedUpdate = true;
 
+	public AnimationCurve forwardBoostCurve = AnimationCurve.Linear(0f, 0f, 1f, 0f);
+	public float forwardBoostDuration = 1f;
+	private bool isForwardBoost = false;
+	private float forwardBoostStartTime;
+
     // For the next variables, [System.NonSerialized] tells Unity to not serialize the variable or show it in the inspector view.
     // Very handy for organization!
 
@@ -246,8 +251,22 @@ public class CharacterMotor : MonoBehaviour
         // Save lastPosition for velocity calculation.
         Vector3 lastPosition = tr.position;
 
+		Vector3 forwardBoost = Vector3.zero;
+		if (isForwardBoost) 
+		{
+			float timeSinceStart = Time.time - forwardBoostStartTime;
+			if(timeSinceStart < forwardBoostDuration)
+			{
+				forwardBoost.x = velocity.x * forwardBoostCurve.Evaluate(Time.time - forwardBoostStartTime);
+			}
+			else
+			{
+				isForwardBoost = false;
+			}
+		}
+
         // We always want the movement to be framerate independent.  Multiplying by Time.deltaTime does this.
-        Vector3 currentMovementOffset = velocity * Time.deltaTime;
+		Vector3 currentMovementOffset = (velocity + forwardBoost) * Time.deltaTime;
 
         // Find out how much we need to push towards the ground to avoid loosing grouning
         // when walking down a step or over a sharp change in slope.
@@ -499,6 +518,7 @@ public class CharacterMotor : MonoBehaviour
 			
 			velocity.y = 0;
 			velocity += jumping.jumpDir * CalculateJumpVerticalSpeed(jumping.baseHeight);
+			StartForwardBoost();
 
 			forceJump = false;
 		}
@@ -529,6 +549,7 @@ public class CharacterMotor : MonoBehaviour
                 // Apply the jumping force to the velocity. Cancel any vertical velocity first.
                 velocity.y = 0;
                 velocity += jumping.jumpDir * CalculateJumpVerticalSpeed(jumping.baseHeight);
+				StartForwardBoost();
 
                 // Apply inertia from platform
                 if(movingPlatform.enabled &&
@@ -551,6 +572,12 @@ public class CharacterMotor : MonoBehaviour
 
         return velocity;
     }
+
+	private void StartForwardBoost()
+	{
+		forwardBoostStartTime = Time.time;
+		isForwardBoost = true;
+	}
 
 	public void Jump()
 	{

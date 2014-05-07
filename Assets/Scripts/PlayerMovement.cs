@@ -74,6 +74,16 @@ public class PlayerMovement : MonoBehaviour
 	private float waterMoveSpeedTemp;
 	private float waterMoveAccelTemp;
 
+	// Animation ting
+	private bool moveRight;
+	private bool moveLeft;
+	private bool jumpUp;
+	private bool jumpForward;
+	private bool idling;
+	private Animator animator;
+	private Transform animatorGameObject;
+
+
 	PlayerIndex player1 = PlayerIndex.One;
 
 
@@ -84,6 +94,9 @@ public class PlayerMovement : MonoBehaviour
 		startJumpHeight = motor.jumping.baseHeight;
 //		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
 
+		// Animations stuff
+		animator = GetComponentInChildren<Animator>();
+		animatorGameObject = animator.gameObject.transform;
 		// temp variabler brugt til movement
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
@@ -262,6 +275,67 @@ public class PlayerMovement : MonoBehaviour
 				GamePad.SetVibration(player1, 0f, 0f);
 			}
 		}
+
+		// Animation styring
+
+		animator.SetBool ("moveRight", moveRight);
+		animator.SetBool ("moveLeft", moveLeft);
+		animator.SetBool ("idling", idling);
+		animator.SetBool ("jumpUp", jumpUp);
+		animator.SetBool ("jumpForward", jumpForward);
+		animator.SetBool ("sprinting", sprinting);
+
+		if (motor.grounded)
+		{
+			if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
+			{
+				moveRight = true;
+				moveLeft = false;
+				idling = false;
+				jumpUp = false;
+				jumpForward = false;
+				animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+			}
+
+			if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
+			{
+				moveRight = false;
+				moveLeft = true;
+				idling = false;
+				jumpForward = false;
+				animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+			}
+
+			if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+			{
+				moveRight = false;
+				moveLeft = false;
+				idling = true;
+				jumpUp = false;
+				jumpForward = false;
+
+			}
+
+		}
+		if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.3f ) || (Input.GetAxis("Horizontal") < 0.3f )))
+		{
+			idling = false;
+			jumpUp = true;
+			jumpForward = false;
+			moveRight = false;
+			moveLeft = false;
+
+		}
+		if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.3f ) || (Input.GetAxis("Horizontal") > 0.3f )))
+		{
+			idling = false;
+			jumpUp = false;
+			jumpForward = true;
+			moveRight = false;
+			moveLeft = false;
+
+		}
+
 	}
 
 

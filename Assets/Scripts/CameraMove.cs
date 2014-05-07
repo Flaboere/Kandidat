@@ -15,6 +15,8 @@ public class CameraMove : MonoBehaviour
 	private float curVel;
 	public float smoothTime = 1f;
 	public float offSetY;
+	public float offSetX;
+	private float tempY;
 
 	public CharacterRespawn respawn;
 
@@ -25,6 +27,7 @@ public class CameraMove : MonoBehaviour
 	public float camPause = 1;
 
 	public GameObject spawn;
+	public CharacterMotor motor;
 
 
 
@@ -35,9 +38,11 @@ public class CameraMove : MonoBehaviour
 	{
 		respawn = GameObject.FindObjectOfType<CharacterRespawn> ();
 		spawn = GameObject.Find ("Spawn");
+		motor = GameObject.FindObjectOfType<CharacterMotor> ();
 
-		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
+		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
 		accelerationTemp = acceleration;
+		tempY = spawn.transform.position.y;
 
 	}
 	
@@ -57,7 +62,16 @@ public class CameraMove : MonoBehaviour
 
 	//		acceleration = acceleration + accelRate * Time.deltaTime;
 			speed.x = speed.x + accelerationTemp * Time.deltaTime;
-			smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
+
+			if (motor.grounded)
+			{
+				smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
+			}
+			else
+			{
+				smoothY = this.transform.position.y;
+			}
+		
 			transform.position = new Vector3 (transform.position.x, smoothY, transform.position.z) + speed * Time.deltaTime;
 //			transform.position = transform.position + speed * Time.deltaTime;
 
