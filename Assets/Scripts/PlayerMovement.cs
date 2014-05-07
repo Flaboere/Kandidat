@@ -83,25 +83,29 @@ public class PlayerMovement : MonoBehaviour
 	private Animator animator;
 	private Transform animatorGameObject;
 
+	// Partikel effekter
+	private GameObject particleSweat;
+
 
 	PlayerIndex player1 = PlayerIndex.One;
 
 
 	void Start () 
 	{
-//		activeMovement = true;
 		motor = GetComponent<CharacterMotor>();
 		startJumpHeight = motor.jumping.baseHeight;
 //		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
+		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
+		particleSweat.SetActive(false);
 
 		// Animations stuff
 		animator = GetComponentInChildren<Animator>();
 		animatorGameObject = animator.gameObject.transform;
+
 		// temp variabler brugt til movement
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
 		tempAirAccel = motor.movement.maxAirAcceleration;
-//		sprintTemp = sprintAmount;
 		sprintAmount = maxSprintAmount;
 
 		// Sprint hastigheder
@@ -277,63 +281,77 @@ public class PlayerMovement : MonoBehaviour
 		}
 
 		// Animation styring
-
-		animator.SetBool ("moveRight", moveRight);
-		animator.SetBool ("moveLeft", moveLeft);
-		animator.SetBool ("idling", idling);
-		animator.SetBool ("jumpUp", jumpUp);
-		animator.SetBool ("jumpForward", jumpForward);
-		animator.SetBool ("sprinting", sprinting);
-
-		if (motor.grounded)
+		if (canMove)
 		{
-			if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
+
+			animator.SetBool ("moveRight", moveRight);
+			animator.SetBool ("moveLeft", moveLeft);
+			animator.SetBool ("idling", idling);
+			animator.SetBool ("jumpUp", jumpUp);
+			animator.SetBool ("jumpForward", jumpForward);
+			animator.SetBool ("sprinting", sprinting);
+
+			if (motor.grounded)
 			{
-				moveRight = true;
+				if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
+				{
+					moveRight = true;
+					moveLeft = false;
+					idling = false;
+					jumpUp = false;
+					jumpForward = false;
+					animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+				}
+
+				if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
+				{
+					moveRight = false;
+					moveLeft = true;
+					idling = false;
+					jumpUp = false;
+					jumpForward = false;
+					animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+				}
+
+				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+				{
+					moveRight = false;
+					moveLeft = false;
+					idling = true;
+					jumpUp = false;
+					jumpForward = false;
+
+				}
+
+			}
+			if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f )))
+			{
+				idling = false;
+				jumpUp = true;
+				jumpForward = false;
+				moveRight = false;
 				moveLeft = false;
+
+			}
+			if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )))
+			{
 				idling = false;
 				jumpUp = false;
-				jumpForward = false;
-				animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
-			}
-
-			if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
-			{
-				moveRight = false;
-				moveLeft = true;
-				idling = false;
-				jumpForward = false;
-				animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
-			}
-
-			if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
-			{
+				jumpForward = true;
 				moveRight = false;
 				moveLeft = false;
-				idling = true;
-				jumpUp = false;
-				jumpForward = false;
 
 			}
 
-		}
-		if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.3f ) || (Input.GetAxis("Horizontal") < 0.3f )))
-		{
-			idling = false;
-			jumpUp = true;
-			jumpForward = false;
-			moveRight = false;
-			moveLeft = false;
-
-		}
-		if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.3f ) || (Input.GetAxis("Horizontal") > 0.3f )))
-		{
-			idling = false;
-			jumpUp = false;
-			jumpForward = true;
-			moveRight = false;
-			moveLeft = false;
-
+			// Effekter
+			if (Input.GetButton ("Jump") && !motor.grounded)
+			{
+				particleSweat.SetActive(true);
+			}
+			if (motor.grounded)
+			{
+				particleSweat.SetActive(false);
+			}
 		}
 
 	}
