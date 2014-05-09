@@ -19,7 +19,8 @@ public class HiResScreenShots : MonoBehaviour {
 	}
 	
 	void LateUpdate() {
-		takeHiResShot |= Input.GetKeyDown("k");
+//		takeHiResShot |= Input.GetKeyDown("k");
+		takeHiResShot |= Input.GetButtonDown("LB");
 		if (takeHiResShot) {
 			RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
 			camera.targetTexture = rt;
