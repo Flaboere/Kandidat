@@ -60,7 +60,7 @@ public class CharacterRespawn : MonoBehaviour
 		{
 			StartCoroutine (Dead());
 		}
-		if (score.penalty == 0)
+		if (score.penalty <= 0)
 		{
 			StartCoroutine (Dead());
 		}

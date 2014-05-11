@@ -28,6 +28,7 @@ public class CameraMove : MonoBehaviour
 
 	public GameObject spawn;
 	public CharacterMotor motor;
+	public PlayerMovement move;
 
 
 
@@ -39,6 +40,7 @@ public class CameraMove : MonoBehaviour
 		respawn = GameObject.FindObjectOfType<CharacterRespawn> ();
 		spawn = GameObject.Find ("Spawn");
 		motor = GameObject.FindObjectOfType<CharacterMotor> ();
+		move = GameObject.FindObjectOfType<PlayerMovement> ();
 
 		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
 		accelerationTemp = acceleration;
@@ -63,7 +65,7 @@ public class CameraMove : MonoBehaviour
 	//		acceleration = acceleration + accelRate * Time.deltaTime;
 			speed.x = speed.x + accelerationTemp * Time.deltaTime;
 
-			if (motor.grounded)
+			if (motor.grounded && !move.inWater)
 			{
 				smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
 			}

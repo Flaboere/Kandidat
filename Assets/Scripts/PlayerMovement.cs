@@ -11,8 +11,11 @@ public class PlayerMovement : MonoBehaviour
 	private float startJumpHeight;
 //	private float inAirJumpHeight;
 //	public float inAirJumpMultiplier = 10;
-	[HideInInspector]
-	
+
+
+	// Variabler for kontakt med Hurlde
+	public bool playerTouching = false;
+	private CharacterController controller;
 
 	// Do i have an extra jump picked up
 	public bool extraJump = false;
@@ -93,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
 	void Start () 
 	{
 		motor = GetComponent<CharacterMotor>();
+		controller = GetComponent<CharacterController> ();
 		startJumpHeight = motor.jumping.baseHeight;
 //		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
 		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
@@ -129,7 +133,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			canMove = true;
 		}
-
+		
 		// Eksempel på at tvinge spiller til at hoppe
 //		if(Input.GetKeyDown(KeyCode.F))
 //		{
@@ -149,11 +153,6 @@ public class PlayerMovement : MonoBehaviour
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
 			motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
 
-//			// Test: kraft fremad i hop - problem: tilføjer fart i hver update
-//			if (motor.grounded && Input.GetButton ("Jump"))
-//			    {
-//				motor.movement.velocity.x += forwardJump;
-//				}
 
 			if (doubleJumpOn)
 			{
@@ -284,6 +283,16 @@ public class PlayerMovement : MonoBehaviour
 		if (canMove)
 		{
 
+			if (Input.GetAxis ("Horizontal") > 0.1f)
+			{
+				animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+			}
+
+			if (Input.GetAxis ("Horizontal") < -0.1f)
+			{
+				animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+			}
+
 			animator.SetBool ("moveRight", moveRight);
 			animator.SetBool ("moveLeft", moveLeft);
 			animator.SetBool ("idling", idling);
@@ -300,7 +309,7 @@ public class PlayerMovement : MonoBehaviour
 					idling = false;
 					jumpUp = false;
 					jumpForward = false;
-					animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+
 				}
 
 				if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
@@ -310,7 +319,7 @@ public class PlayerMovement : MonoBehaviour
 					idling = false;
 					jumpUp = false;
 					jumpForward = false;
-					animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+
 				}
 
 				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
@@ -353,7 +362,14 @@ public class PlayerMovement : MonoBehaviour
 				particleSweat.SetActive(false);
 			}
 		}
-
+		if (controller.collisionFlags == CollisionFlags.None)
+		{
+			playerTouching = false;
+		}
+		if (controller.collisionFlags == CollisionFlags.Below)
+		{
+			playerTouching = true;
+		}
 	}
 
 
@@ -375,12 +391,6 @@ public class PlayerMovement : MonoBehaviour
 		motor.movement.maxAirAcceleration = tempSpeed;
 	}
 
-//	IEnumerator SprintRecover()
-//	{
-//		yield return new WaitForSeconds (sprintRecover);
-//		sprintAmount = sprintTemp;
-////		sprintAmount += 0.1f;
-//	}
 
 	// Kollision for hvis spilleren er i/ude af Water
 	void OnTriggerEnter(Collider hit)
@@ -407,11 +417,22 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
+	void OnControllerColliderHit(ControllerColliderHit hit)
+	{
+		if (hit.gameObject.CompareTag ("Hurdle"))
+		{
+//			if (controller.collisionFlags == CollisionFlags.Below)
+//			{
+//				playerTouching = true;
+//			}
+		}
+	}
 //	// Hvis spilleren hopper ind i ExtraJump
 //	void OnTriggerEnter(Collider extrajump)
 //	{
 //
 //	}
+
 
 	IEnumerator ExtraJumpVibrate()
 	{
