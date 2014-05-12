@@ -27,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool canDoubleJump = true;
 
 	public bool canMove = false;
+	private bool outOfBreath = false;
 	
 
 //	public float forwardJump = 3;
@@ -86,8 +87,11 @@ public class PlayerMovement : MonoBehaviour
 	private Animator animator;
 	private Transform animatorGameObject;
 
+
 	// Partikel effekter
 	private GameObject particleSweat;
+//	public ParticleSystem[] particles;
+	public GameObject waterSplash;
 
 
 	PlayerIndex player1 = PlayerIndex.One;
@@ -99,6 +103,9 @@ public class PlayerMovement : MonoBehaviour
 		controller = GetComponent<CharacterController> ();
 		startJumpHeight = motor.jumping.baseHeight;
 //		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
+//		particles = GetComponentsInChildren<ParticleSystem> ();
+		waterSplash = GameObject.Find ("Particle_water");
+		waterSplash.SetActive (false);
 		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
 		particleSweat.SetActive(false);
 
@@ -129,6 +136,7 @@ public class PlayerMovement : MonoBehaviour
 
 	void Update () 
 	{
+
 		if (Input.GetButtonDown ("Start"))
 		{
 			canMove = true;
@@ -150,58 +158,61 @@ public class PlayerMovement : MonoBehaviour
 		// Input til styring
 		if (canMove)
 		{
-			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
-			motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
-
-
-			if (doubleJumpOn)
+			if (!outOfBreath)
 			{
+				motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
+				motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+
+
+				if (doubleJumpOn)
+				{
+					if (motor.grounded)
+					{
+						canDoubleJump = true;	
+					}
+					
+					
+					if (motor.jumping.baseHeight != startJumpHeight) 
+					{
+						motor.jumping.baseHeight = startJumpHeight;
+					}
+
+					// Doublejump
+					if (!motor.grounded && canDoubleJump) 
+					{
+						if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+						{
+							StartCoroutine (DoubleJump());
+						}
+					}
+				}
+
+				// Hop pickup
 				if (motor.grounded)
 				{
-					canDoubleJump = true;	
+					extraJump = false;
 				}
 				
-				
-				if (motor.jumping.baseHeight != startJumpHeight) 
-				{
-					motor.jumping.baseHeight = startJumpHeight;
-				}
-
-				// Doublejump
-				if (!motor.grounded && canDoubleJump) 
+				if (!motor.grounded && extraJump)
 				{
 					if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
 					{
-						StartCoroutine (DoubleJump());
+						StartCoroutine (ExtraJump());
 					}
 				}
-			}
 
-			// Hop pickup
-			if (motor.grounded)
-			{
-				extraJump = false;
-			}
-			
-			if (!motor.grounded && extraJump)
-			{
-				if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+
+				// Water movement
+				if (inWater)
 				{
-					StartCoroutine (ExtraJump());
+					motor.movement.maxSidewaysSpeed = waterMoveSpeedTemp;
+					motor.movement.maxGroundAcceleration = waterMoveAccelTemp;
 				}
-			}
-
-
-			// Water movement
-			if (inWater)
-			{
-				motor.movement.maxSidewaysSpeed = waterMoveSpeedTemp;
-				motor.movement.maxGroundAcceleration = waterMoveAccelTemp;
-			}
-			if (!inWater && !sprinting)
-			{
-				motor.movement.maxSidewaysSpeed = tempSpeed;
-				motor.movement.maxGroundAcceleration = tempMoveAccel;
+				if (!inWater && !sprinting)
+				{
+					motor.movement.maxSidewaysSpeed = tempSpeed;
+					motor.movement.maxGroundAcceleration = tempMoveAccel;
+				}
 			}
 
 		}
@@ -209,7 +220,12 @@ public class PlayerMovement : MonoBehaviour
 		if (canSprintOn && canMove)
 		{
 			// Afgør sprint input
-			if (Input.GetAxis ("RT") < -0.2)
+			if (outOfBreath)
+			{
+				motor.movement.velocity.x = 0f;
+			}
+
+			if (Input.GetAxis ("RT") < -0.2 && !outOfBreath)
 			{
 				sprintButtonDown = true;
 				sprintButtonUp = false;
@@ -234,6 +250,7 @@ public class PlayerMovement : MonoBehaviour
 			if (sprintButtonDown && sprintAmount <= 0f && motor.grounded)
 			{
 				sprinting = false;
+				outOfBreath = true;
 			}
 			if (sprintButtonUp && sprintAmount < maxSprintAmount)
 			{
@@ -248,7 +265,10 @@ public class PlayerMovement : MonoBehaviour
 			if (sprintButtonUp && sprintAmount >= maxSprintAmount && motor.grounded)
 			{
 				sprinting = false;
-				
+			}
+			if (!sprinting && sprintAmount >= maxSprintAmount && outOfBreath)
+			{
+				outOfBreath = false;
 			}
 			
 			// Sprint hastigheder
@@ -282,85 +302,90 @@ public class PlayerMovement : MonoBehaviour
 		// Animation styring
 		if (canMove)
 		{
-
-			if (Input.GetAxis ("Horizontal") > 0.1f)
-			{
-				animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
-			}
-
-			if (Input.GetAxis ("Horizontal") < -0.1f)
-			{
-				animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
-			}
-
 			animator.SetBool ("moveRight", moveRight);
 			animator.SetBool ("moveLeft", moveLeft);
 			animator.SetBool ("idling", idling);
 			animator.SetBool ("jumpUp", jumpUp);
 			animator.SetBool ("jumpForward", jumpForward);
 			animator.SetBool ("sprinting", sprinting);
+			animator.SetBool ("outOfBreath", outOfBreath);
 
-			if (motor.grounded)
+			if (!outOfBreath)
 			{
-				if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
+				if (Input.GetAxis ("Horizontal") > 0.1f)
 				{
-					moveRight = true;
+					animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+				}
+
+				if (Input.GetAxis ("Horizontal") < -0.1f)
+				{
+					animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+				}
+
+
+
+				if (motor.grounded)
+				{
+					if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
+					{
+						moveRight = true;
+						moveLeft = false;
+						idling = false;
+						jumpUp = false;
+						jumpForward = false;
+
+					}
+
+					if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
+					{
+						moveRight = false;
+						moveLeft = true;
+						idling = false;
+						jumpUp = false;
+						jumpForward = false;
+
+					}
+
+					if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+					{
+						moveRight = false;
+						moveLeft = false;
+						idling = true;
+						jumpUp = false;
+						jumpForward = false;
+
+					}
+
+				}
+				if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f )))
+				{
+					idling = false;
+					jumpUp = true;
+					jumpForward = false;
+					moveRight = false;
 					moveLeft = false;
+
+				}
+				if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )))
+				{
 					idling = false;
 					jumpUp = false;
-					jumpForward = false;
-
-				}
-
-				if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
-				{
-					moveRight = false;
-					moveLeft = true;
-					idling = false;
-					jumpUp = false;
-					jumpForward = false;
-
-				}
-
-				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
-				{
+					jumpForward = true;
 					moveRight = false;
 					moveLeft = false;
-					idling = true;
-					jumpUp = false;
-					jumpForward = false;
 
 				}
-
+				// Effekter
+				if (Input.GetButton ("Jump") && !motor.grounded)
+				{
+					particleSweat.SetActive(true);
+				}
+				if (motor.grounded)
+				{
+					particleSweat.SetActive(false);
+				}
 			}
-			if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f )))
-			{
-				idling = false;
-				jumpUp = true;
-				jumpForward = false;
-				moveRight = false;
-				moveLeft = false;
-
-			}
-			if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )))
-			{
-				idling = false;
-				jumpUp = false;
-				jumpForward = true;
-				moveRight = false;
-				moveLeft = false;
-
-			}
-
-			// Effekter
-			if (Input.GetButton ("Jump") && !motor.grounded)
-			{
-				particleSweat.SetActive(true);
-			}
-			if (motor.grounded)
-			{
-				particleSweat.SetActive(false);
-			}
+				
 		}
 		if (controller.collisionFlags == CollisionFlags.None)
 		{
@@ -399,6 +424,21 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = true;
 			canSprintOn = false;
+			sprinting = false;
+			waterSplash.SetActive(true);
+
+//			waterSplash.SetActive(true);
+//			waterSplash.SetActive(false);
+//			waterSplash.SetActive = false;
+			// Her slår jeg "water" patikel til
+//			foreach (ParticleSystem particle in particles)
+//			{
+//				if (gameObject.transform.name ="Particle_Water")
+//				{
+//					gameObject.SetActive = true;
+//				}
+//			}
+
 		}
 
 		if (hit.gameObject.CompareTag ("ExtraJump")) 
@@ -414,19 +454,20 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = false;
 			canSprintOn = true;
+			waterSplash.SetActive(false);
 		}
 	}
 
-	void OnControllerColliderHit(ControllerColliderHit hit)
-	{
-		if (hit.gameObject.CompareTag ("Hurdle"))
-		{
-//			if (controller.collisionFlags == CollisionFlags.Below)
-//			{
-//				playerTouching = true;
-//			}
-		}
-	}
+//	void OnControllerColliderHit(ControllerColliderHit hit)
+//	{
+//		if (hit.gameObject.CompareTag ("Hurdle"))
+//		{
+////			if (controller.collisionFlags == CollisionFlags.Below)
+////			{
+////				playerTouching = true;
+////			}
+//		}
+//	}
 //	// Hvis spilleren hopper ind i ExtraJump
 //	void OnTriggerEnter(Collider extrajump)
 //	{
