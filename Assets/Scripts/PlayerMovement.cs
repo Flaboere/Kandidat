@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool canJump = true;
 	public bool jumped = false;
 	public float canJumpTimer = 1.5f;
+	public float canJumpTimerTemp = 0f;
 
 	// Am i out of breath after sprinting
 	private bool outOfBreath = false;
@@ -168,38 +169,33 @@ public class PlayerMovement : MonoBehaviour
 		{
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
 
-
+			print (motor.inputJump);
 
 			if (!outOfBreath)
 			{
 
-//				if ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f ))
-//				{
-					motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
-//				}
-//
-//				if ((Input.GetAxis("Horizontal") > -0.2f ) && (Input.GetAxis("Horizontal") < 0.2f ))
+				if ((Input.GetAxis("Horizontal") > -0.2f ) && (Input.GetAxis("Horizontal") < 0.2f ) && Input.GetButton ("Jump") && motor.grounded)
+				{
+					canJumpTimerTemp += 1f;
 
-//				if (canJump)
-//				{
-//					motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
-//				}
+					if (canJumpTimerTemp >= canJumpTimer)
+						{
+							motor.inputJump = true;	
+							jumped = true;
+						}
 
-//				if (Input.GetButton ("Jump") && !motor.grounded)
-//				{
-//					jumped = true;
-//				}
-//
-//				if (jumped && !motor.grounded)
-//				{
-//					motor.inputJump = false;
-//					canJump = false;
-//					StartCoroutine(CanJump());
-//				}
-//				if (jumped && motor.grounded)
-//				{
-//
-//				}
+				}
+				else if ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f ))
+				{
+					motor.inputJump = Input.GetButton ("Jump");
+				}
+
+				if (jumped && motor.grounded)
+				{
+
+					canJumpTimerTemp = 0f;
+					jumped = false;
+				}
 
 
 
@@ -219,7 +215,7 @@ public class PlayerMovement : MonoBehaviour
 					// Doublejump
 					if (!motor.grounded && canDoubleJump) 
 					{
-						if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+						if (Input.GetButtonDown ("Jump"))
 						{
 							StartCoroutine (DoubleJump());
 						}
@@ -234,7 +230,7 @@ public class PlayerMovement : MonoBehaviour
 				
 				if (!motor.grounded && extraJump)
 				{
-					if (Input.GetButtonDown ("Jump")||Input.GetKeyDown (KeyCode.Space))
+					if (Input.GetButtonDown ("Jump"))
 					{
 						StartCoroutine (ExtraJump());
 					}
@@ -438,12 +434,7 @@ public class PlayerMovement : MonoBehaviour
 
 	IEnumerator CanJump()
 	{
-
-
 		yield return new WaitForSeconds(canJumpTimer);
-		jumped = false;
-		canJump = true;
-
 	}
 
 
