@@ -26,7 +26,14 @@ public class PlayerMovement : MonoBehaviour
 	// Can i double jump right now
 	public bool canDoubleJump = true;
 
+	// Can i move
 	public bool canMove = false;
+
+	public bool canJump = true;
+	public bool jumped = false;
+	public float canJumpTimer = 1.5f;
+
+	// Am i out of breath after sprinting
 	private bool outOfBreath = false;
 	
 
@@ -99,6 +106,7 @@ public class PlayerMovement : MonoBehaviour
 
 	void Start () 
 	{
+//		Time.timeScale = 0.5f;
 		motor = GetComponent<CharacterMotor>();
 		controller = GetComponent<CharacterController> ();
 		startJumpHeight = motor.jumping.baseHeight;
@@ -158,10 +166,41 @@ public class PlayerMovement : MonoBehaviour
 		// Input til styring
 		if (canMove)
 		{
+			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
+
+
+
 			if (!outOfBreath)
 			{
-				motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal");
-				motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+
+//				if ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f ))
+//				{
+					motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+//				}
+//
+//				if ((Input.GetAxis("Horizontal") > -0.2f ) && (Input.GetAxis("Horizontal") < 0.2f ))
+
+//				if (canJump)
+//				{
+//					motor.inputJump = Input.GetButton ("Jump")||Input.GetKey (KeyCode.Space);
+//				}
+
+//				if (Input.GetButton ("Jump") && !motor.grounded)
+//				{
+//					jumped = true;
+//				}
+//
+//				if (jumped && !motor.grounded)
+//				{
+//					motor.inputJump = false;
+//					canJump = false;
+//					StartCoroutine(CanJump());
+//				}
+//				if (jumped && motor.grounded)
+//				{
+//
+//				}
+
 
 
 				if (doubleJumpOn)
@@ -222,7 +261,7 @@ public class PlayerMovement : MonoBehaviour
 			// Afgør sprint input
 			if (outOfBreath)
 			{
-				motor.movement.velocity.x = 0f;
+				//motor.movement.velocity.x = 0f;
 			}
 
 			if (Input.GetAxis ("RT") < -0.2 && !outOfBreath)
@@ -397,6 +436,16 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
+	IEnumerator CanJump()
+	{
+
+
+		yield return new WaitForSeconds(canJumpTimer);
+		jumped = false;
+		canJump = true;
+
+	}
+
 
 	IEnumerator DoubleJump()
 	{
@@ -416,6 +465,12 @@ public class PlayerMovement : MonoBehaviour
 		motor.movement.maxAirAcceleration = tempSpeed;
 	}
 
+	IEnumerator ExtraJumpVibrate()
+	{
+		GamePad.SetVibration(player1, 0.1f, 0.3f);
+		yield return new WaitForSeconds (0.3f);
+		GamePad.SetVibration(player1, 0f, 0f);
+	}
 
 	// Kollision for hvis spilleren er i/ude af Water
 	void OnTriggerEnter(Collider hit)
@@ -475,12 +530,7 @@ public class PlayerMovement : MonoBehaviour
 //	}
 
 
-	IEnumerator ExtraJumpVibrate()
-	{
-		GamePad.SetVibration(player1, 1f, 3f);
-		yield return new WaitForSeconds (0.3f);
-		GamePad.SetVibration(player1, 0f, 0f);
-	}
+
 
 }
 		

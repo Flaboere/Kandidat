@@ -182,7 +182,7 @@ public class CharacterMotor : MonoBehaviour
 
     public CharacterMotorSliding sliding = new CharacterMotorSliding();
 
-    [System.NonSerialized]
+//    [System.NonSerialized]
     public bool grounded = true;
 
 	public bool canJump = true;
