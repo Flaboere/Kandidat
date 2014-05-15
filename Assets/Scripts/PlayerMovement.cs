@@ -14,28 +14,39 @@ public class PlayerMovement : MonoBehaviour
 
 
 	// Variabler for kontakt med Hurlde
+	[HideInInspector]
 	public bool playerTouching = false;
 	private CharacterController controller;
 
 	// Do i have an extra jump picked up
 	public bool extraJump = false;
 
+	[HideInInspector]
 	// Is double jump feature activated
 	public bool doubleJumpOn = true;
 
+	[HideInInspector]
 	// Can i double jump right now
 	public bool canDoubleJump = true;
 
 	// Can i move
 	public bool canMove = false;
-
-	public bool canJump = true;
-	public bool jumped = false;
-	public float canJumpTimer = 1.5f;
-	public float canJumpTimerTemp = 0f;
+	public bool isMoving = false;
+	public bool isStopped = true;
 
 	// Am i out of breath after sprinting
 	private bool outOfBreath = false;
+
+	public bool tilløbUp = false;
+	public bool tilløbAltid = true;
+	public bool tilløbOff = false;
+
+//	public bool canJump = true;
+//	public bool jumped = false;
+	public float canJumpTimer = 1.5f;
+	public float canJumpTimerTemp = 0f;
+
+
 	
 
 //	public float forwardJump = 3;
@@ -45,9 +56,6 @@ public class PlayerMovement : MonoBehaviour
 	private float tempMoveAccel;
 	private float tempAirAccel;
 
-	// floats for hop når man starter banen
-	private float tempBaseHeight;
-	private float tempExtraHeight;
 
 	//variabler for sprint funktion
 	[HideInInspector]
@@ -71,12 +79,16 @@ public class PlayerMovement : MonoBehaviour
 	public float sprintMoveSpeed = 15;
 	public float sprintMoveAccel = 15;
 	public float sprintAirAccel = 15;
-//	public float sprintBaseHeight = 15;
-//	public float sprintExtraHeight = 15;
+	public float sprintBaseHeight = 15;
+	public float sprintExtraHeight = 15;
 //	public bool sprinting = false;
 	private float sprintMoveSpeedTemp;
 	private float sprintMoveAccelTemp;
 	private float sprintAirAccelTemp;
+	private float tempBaseHeight;
+	private float tempExtraHeight;
+	private float sprintBaseHeightTemp;
+	private float sprintExtraHeightTemp;
 
 
 	// Variabler for når man er i vand
@@ -126,6 +138,10 @@ public class PlayerMovement : MonoBehaviour
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
 		tempAirAccel = motor.movement.maxAirAcceleration;
+		tempBaseHeight = motor.jumping.baseHeight;
+		tempExtraHeight = motor.jumping.extraHeight;
+
+
 		sprintAmount = maxSprintAmount;
 
 		// Sprint hastigheder
@@ -134,8 +150,9 @@ public class PlayerMovement : MonoBehaviour
 		sprintAirAccelTemp = tempAirAccel + sprintAirAccel;
 
 		// hop under sprint
-//		tempBaseHeight = motor.jumping.baseHeight;
-//		tempExtraHeight = motor.jumping.extraHeight;
+		sprintBaseHeightTemp = tempBaseHeight + sprintBaseHeight;
+		sprintExtraHeightTemp = tempExtraHeight + sprintExtraHeight;
+
 
 		// Movement speeds i vand
 		waterMoveSpeedTemp = tempSpeed - waterMoveSpeed;
@@ -145,6 +162,19 @@ public class PlayerMovement : MonoBehaviour
 
 	void Update () 
 	{
+
+		// Bools for bevægelse
+		if (motor.movement.velocity.x < 1 && motor.movement.velocity.x > -1)
+		{
+			isStopped = true;
+			isMoving = false;
+		}
+
+		if (motor.movement.velocity.x > 1 || motor.movement.velocity.x < -1)
+		{
+			isStopped = false;
+			isMoving = true;
+		}
 
 		if (Input.GetButtonDown ("Start"))
 		{
@@ -169,33 +199,67 @@ public class PlayerMovement : MonoBehaviour
 		{
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
 
-			print (motor.inputJump);
+			print (motor.movement.velocity.x);
 
 			if (!outOfBreath)
 			{
-
-				if ((Input.GetAxis("Horizontal") > -0.2f ) && (Input.GetAxis("Horizontal") < 0.2f ) && Input.GetButton ("Jump") && motor.grounded)
-				{
-					canJumpTimerTemp += 1f;
-
-					if (canJumpTimerTemp >= canJumpTimer)
-						{
-							motor.inputJump = true;	
-							jumped = true;
-						}
-
-				}
-				else if ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f ))
+				// Normalt input, uden tilløb eller pause ved hop
+				if (tilløbOff)
 				{
 					motor.inputJump = Input.GetButton ("Jump");
 				}
 
-				if (jumped && motor.grounded)
+				// Hoppe input - tilløb på jumpUp
+				if (tilløbUp)
 				{
 
-					canJumpTimerTemp = 0f;
-					jumped = false;
+					if (isStopped)
+					{
+						if (Input.GetButton ("Jump") && motor.grounded)
+						{
+
+						canJumpTimerTemp += 1f;
+
+
+						if (canJumpTimerTemp >= canJumpTimer)
+							{
+								motor.inputJump = true;	
+							}
+						}
+
+					}
+					else if (isMoving)
+					{
+						motor.inputJump = Input.GetButton ("Jump");
+					}
+					if (!Input.GetButton ("Jump") && motor.grounded)
+					{
+						canJumpTimerTemp = 0f;
+						motor.inputJump = false;
+					}
 				}
+
+				// Input hvor der er tilløb til alle slags hop
+				if (tilløbAltid)
+				{
+					if (Input.GetButton ("Jump") && motor.grounded)
+						{
+							
+							canJumpTimerTemp += 1f;
+							
+							if (canJumpTimerTemp >= canJumpTimer)
+							{
+								motor.inputJump = true;	
+							}
+						}
+
+					if (!Input.GetButton ("Jump") && motor.grounded)
+					{
+						canJumpTimerTemp = 0f;
+						motor.inputJump = false;
+					}
+				}
+
 
 
 
@@ -312,12 +376,18 @@ public class PlayerMovement : MonoBehaviour
 				motor.movement.maxSidewaysSpeed = sprintMoveSpeedTemp;
 				motor.movement.maxGroundAcceleration = sprintMoveAccelTemp;
 				motor.movement.maxAirAcceleration = sprintAirAccelTemp;
+				motor.jumping.baseHeight = sprintBaseHeightTemp;
+				motor.jumping.extraHeight = sprintExtraHeightTemp;
+
 			}
 			else
 			{
 				motor.movement.maxSidewaysSpeed = tempSpeed;
 				motor.movement.maxGroundAcceleration = tempMoveAccel;
 				motor.movement.maxAirAcceleration = tempAirAccel;
+				motor.jumping.baseHeight = tempBaseHeight;
+				motor.jumping.extraHeight = tempExtraHeight;
+
 			}
 
 			//Sprint vibration
