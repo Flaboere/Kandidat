@@ -63,6 +63,7 @@ public class PlayerMovement : MonoBehaviour
 	private float maxSprintAmount = 10;
 	private float sprintTemp;
 	public float sprintRemove = 0.1f;
+	public float sprintJumpRemove = 0.1f;
 	public float sprintRecover = 0.05f;
 	public bool canSprint = true;
 	private bool sprinting = false;
@@ -199,8 +200,6 @@ public class PlayerMovement : MonoBehaviour
 		{
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
 
-			print (motor.movement.velocity.x);
-
 			if (!outOfBreath)
 			{
 				// Normalt input, uden tilløb eller pause ved hop
@@ -319,9 +318,10 @@ public class PlayerMovement : MonoBehaviour
 		if (canSprintOn && canMove)
 		{
 			// Afgør sprint input
-			if (outOfBreath)
+
+			if (Input.GetButtonDown ("Jump"))
 			{
-				//motor.movement.velocity.x = 0f;
+				sprintAmount -= sprintJumpRemove;
 			}
 
 			if (Input.GetAxis ("RT") < -0.2 && !outOfBreath)
@@ -346,11 +346,18 @@ public class PlayerMovement : MonoBehaviour
 				sprintAmount -= sprintRemove;
 			}
 
-			if (sprintButtonDown && sprintAmount <= 0f && motor.grounded)
+//			if (sprintButtonDown && sprintAmount <= 0f && motor.grounded)
+//			{
+//				sprinting = false;
+//				outOfBreath = true;
+//			}
+
+			if (sprintAmount <= 0f && motor.grounded)
 			{
 				sprinting = false;
 				outOfBreath = true;
 			}
+
 			if (sprintButtonUp && sprintAmount < maxSprintAmount)
 			{
 				sprintAmount += sprintRecover;
