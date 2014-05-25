@@ -209,12 +209,14 @@ public class CameraMove : MonoBehaviour
 
 	// Stopper kamera når spiller dør
 	IEnumerator Camdead()
-		{
-			accelerationTemp = 0f;
-			speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
-			speed.x = speedStop;
-			yield return new WaitForSeconds (respawn.spawnTimer);
-		}
+	{
+		camStarted = false;
+		staticCamTemp = false;
+		accelerationTemp = 0f;
+		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
+		speed.x = speedStop;
+		yield return new WaitForSeconds (respawn.spawnTimer);
+	}
 
 	// Respawner spiller (virker med korrekt Dead() i CharacterRespawn
 //	IEnumerator Camdead()
