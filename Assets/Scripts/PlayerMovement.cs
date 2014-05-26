@@ -37,9 +37,11 @@ public class PlayerMovement : MonoBehaviour
 	// Am i out of breath after sprinting
 	private bool outOfBreath = false;
 
+	// Typer af hop til/fra
 	public bool tilløbUp = false;
 	public bool tilløbAltid = true;
 	public bool tilløbOff = false;
+	public bool hopPause = false;
 
 //	public bool canJump = true;
 //	public bool jumped = false;
@@ -104,6 +106,10 @@ public class PlayerMovement : MonoBehaviour
 	private Animator animator;
 	private Transform animatorGameObject;
 
+	// Pause mellem hop - variabler
+	public float jumpCounter = 20;
+	public bool canJumpNow = true;
+	public float jumpCounterTemp;
 
 	// Partikel effekter
 	private GameObject particleSweat;
@@ -117,11 +123,10 @@ public class PlayerMovement : MonoBehaviour
 	void Start () 
 	{
 //		Time.timeScale = 0.5f;
+
+		// Henter basis komponenter
 		motor = GetComponent<CharacterMotor>();
 		controller = GetComponent<CharacterController> ();
-		startJumpHeight = motor.jumping.baseHeight;
-//		inAirJumpHeight = startJumpHeight * inAirJumpMultiplier;
-//		particles = GetComponentsInChildren<ParticleSystem> ();
 		waterSplash = GameObject.Find ("Particle_water");
 		waterSplash.SetActive (false);
 		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
@@ -131,6 +136,9 @@ public class PlayerMovement : MonoBehaviour
 		animator = GetComponentInChildren<Animator>();
 		animatorGameObject = animator.gameObject.transform;
 
+		// Husker standard hoppehøjden
+		startJumpHeight = motor.jumping.baseHeight;
+
 		// temp variabler brugt til movement
 		tempSpeed = motor.movement.maxSidewaysSpeed;
 		tempMoveAccel = motor.movement.maxGroundAcceleration;
@@ -138,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
 		tempBaseHeight = motor.jumping.baseHeight;
 		tempExtraHeight = motor.jumping.extraHeight;
 
-
+		// Sætter mængden af sprint tilgængelig
 		sprintAmount = maxSprintAmount;
 
 		// Sprint hastigheder
@@ -154,6 +162,9 @@ public class PlayerMovement : MonoBehaviour
 		// Movement speeds i vand
 		waterMoveSpeedTemp = tempSpeed - waterMoveSpeed;
 		waterMoveAccelTemp = tempMoveAccel - waterMoveAccel;
+
+		// Hoppe pause
+//		jumpCounterTemp = jumpCounter;
 	}
 	
 
@@ -185,15 +196,6 @@ public class PlayerMovement : MonoBehaviour
 //			motor.grounded = false;
 //		}
 
-		if (controller.collisionFlags == CollisionFlags.Below) 
-		{
-			print ("ground only");
-		}
-
-		if ( (controller.collisionFlags & CollisionFlags.Sides) != 0 ) 
-		{
-			print ("sides");
-		}
 
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
@@ -204,8 +206,8 @@ public class PlayerMovement : MonoBehaviour
 		// Input til styring
 		if (canMove)
 		{
+			// Sætter input og hvis outOfBreath gangner den med 0 = intet input
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
-
 
 
 			if (!outOfBreath)
@@ -214,6 +216,30 @@ public class PlayerMovement : MonoBehaviour
 				if (tilløbOff)
 				{
 					motor.inputJump = Input.GetButton ("Jump");
+				}
+
+				if (hopPause)
+				{
+					if (canJumpNow)
+					{
+						motor.inputJump = Input.GetButton ("Jump");
+					}
+					if (motor.grounded && (jumpCounterTemp <= 0f))
+					{
+						canJumpNow = true;
+					}
+					if (jumpCounterTemp > 0f)
+					{
+						canJumpNow = false;
+					}
+					if (motor.grounded && !canJumpNow)
+					{
+						jumpCounterTemp -= 1f;
+					}
+					if (!motor.grounded)
+					{
+						jumpCounterTemp = jumpCounter;
+					}
 				}
 
 				// Hoppe input - tilløb på jumpUp
@@ -313,7 +339,6 @@ public class PlayerMovement : MonoBehaviour
 					}
 				}
 
-
 				// Water movement
 				if (inWater)
 				{
@@ -324,8 +349,12 @@ public class PlayerMovement : MonoBehaviour
 				{
 					motor.movement.maxSidewaysSpeed = tempSpeed;
 					motor.movement.maxGroundAcceleration = tempMoveAccel;
+					motor.movement.maxSidewaysSpeed = tempSpeed;
+					motor.jumping.baseHeight = tempBaseHeight;
+					motor.jumping.extraHeight = tempExtraHeight;
 				}
 			}
+
 
 		}
 
@@ -366,65 +395,66 @@ public class PlayerMovement : MonoBehaviour
 //				outOfBreath = true;
 //			}
 
-			if (sprintAmount <= 0f && motor.grounded)
-			{
-				sprinting = false;
-				outOfBreath = true;
-			}
 
+		}
 
-				
-			}
-			if (sprintButtonUp && sprintAmount < maxSprintAmount && motor.grounded)
-			{
-				sprinting = false;
-				
-			}
-			if (sprintButtonUp && sprintAmount >= maxSprintAmount && motor.grounded)
-			{
-				sprinting = false;
-			}
-			if (!sprinting && sprintAmount >= maxSprintAmount && outOfBreath)
-			{
-				outOfBreath = false;
-			}
+		if (sprintAmount <= 0f && motor.grounded)
+		{
+			sprinting = false;
+			outOfBreath = true;
+		}	
+
+		if (sprintButtonUp && sprintAmount < maxSprintAmount && motor.grounded)
+		{
+			sprinting = false;
 			
-			// Sprint hastigheder
-			if (sprinting)
-			{
-				motor.movement.maxSidewaysSpeed = sprintMoveSpeedTemp;
-				motor.movement.maxGroundAcceleration = sprintMoveAccelTemp;
-				motor.movement.maxAirAcceleration = sprintAirAccelTemp;
-				motor.jumping.baseHeight = sprintBaseHeightTemp;
-				motor.jumping.extraHeight = sprintExtraHeightTemp;
-
-			}
-			else
-			{
-				motor.movement.maxSidewaysSpeed = tempSpeed;
-				motor.movement.maxGroundAcceleration = tempMoveAccel;
-				motor.movement.maxAirAcceleration = tempAirAccel;
-				motor.jumping.baseHeight = tempBaseHeight;
-				motor.jumping.extraHeight = tempExtraHeight;
-
-			}
-
-			//Sprint vibration
-			sprintVibrate = (maxSprintAmount - sprintAmount)/10;
-
-
-			if (sprintAmount < (maxSprintAmount/2f) && sprintButtonDown)
-			{
-				GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
-			}
-			if (sprintAmount >= (maxSprintAmount/3f) && sprintButtonUp)
-			{
-				GamePad.SetVibration(player1, 0f, 0f);
-			}
+		}
+		if (sprintButtonUp && sprintAmount >= maxSprintAmount && motor.grounded)
+		{
+			sprinting = false;
+		}
+		if (!sprinting && sprintAmount >= maxSprintAmount && outOfBreath)
+		{
+			outOfBreath = false;
+		}
 		if (sprintButtonUp && sprintAmount < maxSprintAmount)
 		{
 			sprintAmount += sprintRecover;
 		}
+			
+		// Sprint hastigheder
+		if (sprinting)
+		{
+			motor.movement.maxSidewaysSpeed = sprintMoveSpeedTemp;
+			motor.movement.maxGroundAcceleration = sprintMoveAccelTemp;
+			motor.movement.maxAirAcceleration = sprintAirAccelTemp;
+			motor.jumping.baseHeight = sprintBaseHeightTemp;
+			motor.jumping.extraHeight = sprintExtraHeightTemp;
+
+		}
+//		else if (!inWater)
+//		{
+//			motor.movement.maxSidewaysSpeed = tempSpeed;
+//			motor.movement.maxGroundAcceleration = tempMoveAccel;
+//			motor.movement.maxAirAcceleration = tempAirAccel;
+//			motor.jumping.baseHeight = tempBaseHeight;
+//			motor.jumping.extraHeight = tempExtraHeight;
+//		}
+
+		//Sprint vibration
+		sprintVibrate = (maxSprintAmount - sprintAmount)/10;
+
+
+		if (sprintAmount < (maxSprintAmount/2f) && sprintButtonDown)
+		{
+			GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
+		}
+		if (sprintAmount >= (maxSprintAmount/3f) && sprintButtonUp)
+		{
+			GamePad.SetVibration(player1, 0f, 0f);
+		}
+
+
 
 		// Animation styring
 		if (canMove)
@@ -568,6 +598,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = true;
 			canSprintOn = false;
+			sprintButtonUp = true;
 			sprinting = false;
 			waterSplash.SetActive(true);
 
