@@ -549,8 +549,10 @@ public class CharacterMotor : MonoBehaviour
                 // Apply the jumping force to the velocity. Cancel any vertical velocity first.
                 velocity.y = 0;
                 velocity += jumping.jumpDir * CalculateJumpVerticalSpeed(jumping.baseHeight);
-				StartForwardBoost();
-
+				if ((controller.collisionFlags & CollisionFlags.Sides) == 0)
+				{
+					StartForwardBoost();
+				}
                 // Apply inertia from platform
                 if(movingPlatform.enabled &&
                     (movingPlatform.movementTransfer == MovementTransferOnJump.InitTransfer ||

@@ -46,11 +46,6 @@ public class PlayerMovement : MonoBehaviour
 	public float canJumpTimer = 1.5f;
 	public float canJumpTimerTemp = 0f;
 
-
-	
-
-//	public float forwardJump = 3;
-
 	// floats der indeholder den speed man har når banen starter
 	private float tempSpeed;
 	private float tempMoveAccel;
@@ -104,6 +99,7 @@ public class PlayerMovement : MonoBehaviour
 	private bool moveLeft;
 	private bool jumpUp;
 	private bool jumpForward;
+	public bool jumpingUp;
 	private bool idling;
 	private Animator animator;
 	private Transform animatorGameObject;
@@ -165,13 +161,13 @@ public class PlayerMovement : MonoBehaviour
 	{
 
 		// Bools for bevægelse
-		if (motor.movement.velocity.x < 1 && motor.movement.velocity.x > -1)
+		if ((motor.movement.velocity.x < 0.5f && motor.movement.velocity.x > -0.5f) || (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f))
 		{
 			isStopped = true;
 			isMoving = false;
 		}
 
-		if (motor.movement.velocity.x > 1 || motor.movement.velocity.x < -1)
+		if ((motor.movement.velocity.x > 0.5f || motor.movement.velocity.x < -0.5f) || (Input.GetAxis ("Horizontal") > 0.1f || Input.GetAxis ("Horizontal") < -0.1f))
 		{
 			isStopped = false;
 			isMoving = true;
@@ -189,6 +185,16 @@ public class PlayerMovement : MonoBehaviour
 //			motor.grounded = false;
 //		}
 
+		if (controller.collisionFlags == CollisionFlags.Below) 
+		{
+			print ("ground only");
+		}
+
+		if ( (controller.collisionFlags & CollisionFlags.Sides) != 0 ) 
+		{
+			print ("sides");
+		}
+
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
 
@@ -199,6 +205,8 @@ public class PlayerMovement : MonoBehaviour
 		if (canMove)
 		{
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
+
+
 
 			if (!outOfBreath)
 			{
@@ -218,23 +226,29 @@ public class PlayerMovement : MonoBehaviour
 						{
 
 						canJumpTimerTemp += 1f;
+						jumpingUp = true;
 
-
-						if (canJumpTimerTemp >= canJumpTimer)
+							if (canJumpTimerTemp >= canJumpTimer)
 							{
-								motor.inputJump = true;	
+								motor.inputJump = true;
 							}
+						}
+						if (Input.GetButton ("Jump") && canJumpTimerTemp > canJumpTimer && motor.grounded)
+						{
+							jumpingUp = false;
 						}
 
 					}
 					else if (isMoving)
 					{
 						motor.inputJump = Input.GetButton ("Jump");
+						jumpingUp = false;
 					}
 					if (!Input.GetButton ("Jump") && motor.grounded)
 					{
 						canJumpTimerTemp = 0f;
 						motor.inputJump = false;
+						jumpingUp = false;
 					}
 				}
 
@@ -319,7 +333,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			// Afgør sprint input
 
-			if (Input.GetButtonDown ("Jump"))
+			if (Input.GetButtonDown ("Jump") && !outOfBreath)
 			{
 				sprintAmount -= sprintJumpRemove;
 			}
@@ -358,9 +372,7 @@ public class PlayerMovement : MonoBehaviour
 				outOfBreath = true;
 			}
 
-			if (sprintButtonUp && sprintAmount < maxSprintAmount)
-			{
-				sprintAmount += sprintRecover;
+
 				
 			}
 			if (sprintButtonUp && sprintAmount < maxSprintAmount && motor.grounded)
@@ -409,6 +421,9 @@ public class PlayerMovement : MonoBehaviour
 			{
 				GamePad.SetVibration(player1, 0f, 0f);
 			}
+		if (sprintButtonUp && sprintAmount < maxSprintAmount)
+		{
+			sprintAmount += sprintRecover;
 		}
 
 		// Animation styring
@@ -424,6 +439,7 @@ public class PlayerMovement : MonoBehaviour
 
 			if (!outOfBreath)
 			{
+				// Flipper figuren den rigtige retning
 				if (Input.GetAxis ("Horizontal") > 0.1f)
 				{
 					animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
@@ -435,41 +451,40 @@ public class PlayerMovement : MonoBehaviour
 				}
 
 
+				// Kører rigtige animation
 
-				if (motor.grounded)
+				if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight && motor.grounded)
 				{
-					if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight)
-					{
-						moveRight = true;
-						moveLeft = false;
-						idling = false;
-						jumpUp = false;
-						jumpForward = false;
-
-					}
-
-					if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft)
-					{
-						moveRight = false;
-						moveLeft = true;
-						idling = false;
-						jumpUp = false;
-						jumpForward = false;
-
-					}
-
-					if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
-					{
-						moveRight = false;
-						moveLeft = false;
-						idling = true;
-						jumpUp = false;
-						jumpForward = false;
-
-					}
+					moveRight = true;
+					moveLeft = false;
+					idling = false;
+					jumpUp = false;
+					jumpForward = false;
 
 				}
-				if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f )))
+
+				if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft && motor.grounded)
+				{
+					moveRight = false;
+					moveLeft = true;
+					idling = false;
+					jumpUp = false;
+					jumpForward = false;
+
+				}
+
+				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+				{
+					moveRight = false;
+					moveLeft = false;
+					idling = true;
+					jumpUp = false;
+					jumpForward = false;
+
+				}
+				
+				
+				if (Input.GetButton ("Jump") && (isStopped) && jumpingUp)
 				{
 					idling = false;
 					jumpUp = true;
@@ -478,7 +493,7 @@ public class PlayerMovement : MonoBehaviour
 					moveLeft = false;
 
 				}
-				if (Input.GetButton ("Jump") && ((Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )))
+				if (Input.GetButton ("Jump") && (isMoving) && !motor.grounded)
 				{
 					idling = false;
 					jumpUp = false;
@@ -487,6 +502,12 @@ public class PlayerMovement : MonoBehaviour
 					moveLeft = false;
 
 				}
+
+				//Temp
+//				(Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )
+//				(Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f ))
+
+
 				// Effekter
 				if (Input.GetButton ("Jump") && !motor.grounded)
 				{

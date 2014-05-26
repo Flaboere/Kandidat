@@ -24,6 +24,7 @@ public class HurdleScript : MonoBehaviour
 	private bool playerTouching = false;
 	public bool pushed = false;
 	public float pushAmp = 0f;
+	public float vertPushAmp = 10f;
 
 
 	public Score score;
@@ -112,7 +113,7 @@ public class HurdleScript : MonoBehaviour
 	{
 		if (motor.movement.velocity.x < 1 && motor.movement.velocity.x > -1)
 		{
-			pushedForce = (motor.movement.velocity.x + 10f) * pushAmp;
+			pushedForce = (motor.movement.velocity.x + vertPushAmp) * pushAmp;
 		}
 		else
 		{
