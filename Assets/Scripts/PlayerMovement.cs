@@ -112,9 +112,10 @@ public class PlayerMovement : MonoBehaviour
 	public float jumpCounterTemp;
 
 	// Partikel effekter
-	private GameObject particleSweat;
+//	private GameObject particleSweat;
+	public AnimationChar animChar;
 //	public ParticleSystem[] particles;
-	public GameObject waterSplash;
+//	public GameObject waterSplash;
 
 
 	PlayerIndex player1 = PlayerIndex.One;
@@ -127,14 +128,15 @@ public class PlayerMovement : MonoBehaviour
 		// Henter basis komponenter
 		motor = GetComponent<CharacterMotor>();
 		controller = GetComponent<CharacterController> ();
-		waterSplash = GameObject.Find ("Particle_water");
-		waterSplash.SetActive (false);
-		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
-		particleSweat.SetActive(false);
+//		waterSplash = GameObject.Find ("Particle_water");
+//		waterSplash.SetActive (false);
+//		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
+//		particleSweat.SetActive(false);
 
 		// Animations stuff
 		animator = GetComponentInChildren<Animator>();
 		animatorGameObject = animator.gameObject.transform;
+		animChar = GetComponentInChildren<AnimationChar> ();
 
 		// Husker standard hoppehøjden
 		startJumpHeight = motor.jumping.baseHeight;
@@ -172,13 +174,13 @@ public class PlayerMovement : MonoBehaviour
 	{
 
 		// Bools for bevægelse
-		if ((motor.movement.velocity.x < 0.5f && motor.movement.velocity.x > -0.5f) || (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f))
+		if ((motor.movement.velocity.x < 1f && motor.movement.velocity.x > -1f) || (Input.GetAxis ("Horizontal") > -0.2f && Input.GetAxis ("Horizontal") < 0.2f))
 		{
 			isStopped = true;
 			isMoving = false;
 		}
 
-		if ((motor.movement.velocity.x > 0.5f || motor.movement.velocity.x < -0.5f) || (Input.GetAxis ("Horizontal") > 0.1f || Input.GetAxis ("Horizontal") < -0.1f))
+		if ((motor.movement.velocity.x > 1f || motor.movement.velocity.x < -1f) || (Input.GetAxis ("Horizontal") > 0.2f || Input.GetAxis ("Horizontal") < -0.2f))
 		{
 			isStopped = false;
 			isMoving = true;
@@ -503,18 +505,26 @@ public class PlayerMovement : MonoBehaviour
 
 				}
 
-				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+//				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
+//				{
+//					moveRight = false;
+//					moveLeft = false;
+//					idling = true;
+//					jumpUp = false;
+//					jumpForward = false;
+//
+//				}
+				if (isStopped && !idling && motor.grounded)
 				{
 					moveRight = false;
 					moveLeft = false;
 					idling = true;
 					jumpUp = false;
 					jumpForward = false;
-
+					
 				}
 				
-				
-				if (Input.GetButton ("Jump") && (isStopped) && jumpingUp)
+				if (Input.GetButton ("Jump") && isStopped)
 				{
 					idling = false;
 					jumpUp = true;
@@ -523,14 +533,13 @@ public class PlayerMovement : MonoBehaviour
 					moveLeft = false;
 
 				}
-				if (Input.GetButton ("Jump") && (isMoving) && !motor.grounded)
+				if (Input.GetButton ("Jump") && isMoving && !motor.grounded)
 				{
 					idling = false;
 					jumpUp = false;
 					jumpForward = true;
 					moveRight = false;
 					moveLeft = false;
-
 				}
 
 				//Temp
@@ -538,15 +547,15 @@ public class PlayerMovement : MonoBehaviour
 //				(Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f ))
 
 
-				// Effekter
-				if (Input.GetButton ("Jump") && !motor.grounded)
-				{
-					particleSweat.SetActive(true);
-				}
-				if (motor.grounded)
-				{
-					particleSweat.SetActive(false);
-				}
+//				// Effekter
+//				if (Input.GetButton ("Jump") && !motor.grounded)
+//				{
+//					particleSweat.SetActive(true);
+//				}
+//				if (motor.grounded)
+//				{
+//					particleSweat.SetActive(false);
+//				}
 			}
 				
 		}
@@ -600,7 +609,7 @@ public class PlayerMovement : MonoBehaviour
 			canSprintOn = false;
 			sprintButtonUp = true;
 			sprinting = false;
-			waterSplash.SetActive(true);
+//			waterSplash.SetActive(true);
 
 //			waterSplash.SetActive(true);
 //			waterSplash.SetActive(false);
@@ -629,7 +638,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = false;
 			canSprintOn = true;
-			waterSplash.SetActive(false);
+//			waterSplash.SetActive(false);
 		}
 	}
 
