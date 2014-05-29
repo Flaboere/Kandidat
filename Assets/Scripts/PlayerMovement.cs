@@ -609,6 +609,7 @@ public class PlayerMovement : MonoBehaviour
 			canSprintOn = false;
 			sprintButtonUp = true;
 			sprinting = false;
+			animChar.StartCoroutine("Watersplash");
 //			waterSplash.SetActive(true);
 
 //			waterSplash.SetActive(true);
@@ -637,7 +638,7 @@ public class PlayerMovement : MonoBehaviour
 		if (hit.gameObject.CompareTag ("Water"))
 		{
 			inWater = false;
-			canSprintOn = true;
+			animChar.StartCoroutine("Watersplash");
 //			waterSplash.SetActive(false);
 		}
 	}

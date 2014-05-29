@@ -75,6 +75,13 @@ public class AnimationChar : MonoBehaviour
 		jumped = true;
 
 	}
+	public IEnumerator Watersplash()
+	{
+		splash.enableEmission = true;
+		yield return new WaitForSeconds (jumpWait);
+		splash.enableEmission = false;
+
+	}
 
 	void FootStep ()
 	{

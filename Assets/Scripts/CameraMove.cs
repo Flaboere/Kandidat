@@ -80,8 +80,6 @@ public class CameraMove : MonoBehaviour
 			StartCoroutine (Camstart());
 		}
 
-		print (speed.x);
-
 		if (camMoving)
 		{
 
