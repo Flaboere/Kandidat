@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
 //	private float inAirJumpHeight;
 //	public float inAirJumpMultiplier = 10;
 
+	public bool slowMo = false;
 
 	// Variabler for kontakt med Hurlde
 	[HideInInspector]
@@ -123,7 +124,10 @@ public class PlayerMovement : MonoBehaviour
 
 	void Start () 
 	{
-//		Time.timeScale = 0.5f;
+		if (slowMo)
+		{
+			Time.timeScale = 0.5f;
+		}
 
 		// Henter basis komponenter
 		motor = GetComponent<CharacterMotor>();
@@ -173,6 +177,22 @@ public class PlayerMovement : MonoBehaviour
 	void Update () 
 	{
 
+		PlayerIndex controllerNumber = PlayerIndex.One;
+		GamePadState state = GamePad.GetState(player1);
+
+		// Skifter kamera baggrund når hop knappen trykkes
+		//		Camera.main.backgroundColor = Input.GetButton ("Jump") ? Color.blue : Color.red;
+
+		// Eksempel på at tvinge spiller til at hoppe
+		//		if(Input.GetKeyDown(KeyCode.F))
+		//		{
+		//			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
+		//			motor.grounded = false;
+		//		}
+
+		// Print ting her:
+
+
 		// Bools for bevægelse
 		if ((motor.movement.velocity.x < 1f && motor.movement.velocity.x > -1f) || (Input.GetAxis ("Horizontal") > -0.2f && Input.GetAxis ("Horizontal") < 0.2f))
 		{
@@ -190,21 +210,9 @@ public class PlayerMovement : MonoBehaviour
 		{
 			canMove = true;
 		}
-		
-		// Eksempel på at tvinge spiller til at hoppe
-//		if(Input.GetKeyDown(KeyCode.F))
-//		{
-//			motor.movement.velocity = new Vector3(1f, 1f, 0f) * 100f;
-//			motor.grounded = false;
-//		}
 
 
-		PlayerIndex controllerNumber = PlayerIndex.One;
-		GamePadState state = GamePad.GetState(player1);
-
-		// Skifter kamera baggrund når hop knappen trykkes
-//		Camera.main.backgroundColor = Input.GetButton ("Jump") ? Color.blue : Color.red;
-
+	
 		// Input til styring
 		if (canMove)
 		{
@@ -639,6 +647,7 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = false;
 			animChar.StartCoroutine("Watersplash");
+			canSprintOn = true;
 //			waterSplash.SetActive(false);
 		}
 	}

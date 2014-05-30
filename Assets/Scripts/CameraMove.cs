@@ -9,12 +9,17 @@ public class CameraMove : MonoBehaviour
 	public float accelerationTemp;
 	public GameObject player;
 	private float smoothY;
+
 	private float speedStop;
 	public float speedStopTime;
+
+	private float curVel6;
+	private float curVel5;
 	private float curVel4;
 	private float curVel3;
 	private float curVel2;
 	private float curVel;
+
 	public float smoothTime = 1f;
 	public float offSetY;
 	public float offSetX;
@@ -22,10 +27,18 @@ public class CameraMove : MonoBehaviour
 	public float posX;
 	public float playerOffsetX;
 	public float playerInFront;
-	public float playerBehind;
+//	public float playerBehind;
 	public float speedMulti;
 	public float speedChange = 1.5f;
 
+	public float originZ;
+	public float newPosZ;
+	private float newPosZTemp;
+	public float posZ;
+	public float posZTemp;
+	private float smoothZ;
+	public float speedSmoothZ = 0.3f;
+	public float velocityMultiply = 5f;
 
 	public CharacterRespawn respawn;
 
@@ -58,17 +71,19 @@ public class CameraMove : MonoBehaviour
 		spawn = GameObject.Find ("Spawn");
 		motor = GameObject.FindObjectOfType<CharacterMotor> ();
 		move = GameObject.FindObjectOfType<PlayerMovement> ();
+		
+		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
+		accelerationTemp = acceleration;
+		tempY = spawn.transform.position.y;
+		maxSpeedTemp = maxSpeed;
+		smoothZ = transform.position.z;
+		posZ = transform.position.z;
+		originZ = transform.position.z;
 
 		if (staticCam)
 		{
 			dynamicCam = false;
 		}
-
-		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
-		accelerationTemp = acceleration;
-		tempY = spawn.transform.position.y;
-		maxSpeedTemp = maxSpeed;
-
 
 	}
 	
@@ -80,13 +95,12 @@ public class CameraMove : MonoBehaviour
 			StartCoroutine (Camstart());
 		}
 
+		// Print ting her:
+		print (transform.position.z);
+
 		if (camMoving)
 		{
-
-
-	//		acceleration = acceleration + accelRate * Time.deltaTime;
-
-
+			// Kameraets Y position
 			if (motor.grounded && !move.inWater)
 			{
 				smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
@@ -95,27 +109,36 @@ public class CameraMove : MonoBehaviour
 			{
 				smoothY = this.transform.position.y;
 			}
+
+			// Kameraets Z position
+//			posZTemp = posZ - (motor.movement.velocity.x * velocityMultiply);
+			newPosZTemp = originZ - newPosZ;
+
+			if (ahead && !behind)
+			{
+				smoothZ = Mathf.SmoothDamp (transform.position.z, newPosZTemp, ref curVel5, speedSmoothZ * Time.deltaTime);
+			}
+
+			if (!ahead && behind)
+			{
+				smoothZ = Mathf.SmoothDamp (transform.position.z, originZ, ref curVel6, speedSmoothZ * Time.deltaTime);
+			}
 		
-			transform.position = new Vector3 (transform.position.x, smoothY, transform.position.z) + speed * Time.deltaTime;
-//			transform.position = transform.position + speed * Time.deltaTime;
+			// Bevæger kameraet
+			transform.position = new Vector3 (transform.position.x, smoothY, smoothZ) + speed * Time.deltaTime;
+//			transform.position = new Vector3 (transform.position.x, smoothY, smoothZ);
 
 			// Ændrer max hastighed alt efter hvor langt fra kameraet spilleren er
 			if (player.transform.position.x - playerInFront > transform.position.x)
 			{
-				maxSpeedTemp = speedMulti;
+//				maxSpeedTemp = speedMulti;
 				ahead = true;
 				behind = false;
 			}
-//			if (player.transform.position.x - playerInFront < transform.position.x)
-//			{
-//				maxSpeedTemp = maxSpeed;
-//				ahead = false;
-//				behind = true;
-//			}
 
 			if (player.transform.position.x - playerInFront < transform.position.x)
 			{
-				maxSpeedTemp = maxSpeed;
+//				maxSpeedTemp = maxSpeed;
 				ahead = false;
 				behind = true;
 			}
@@ -164,14 +187,14 @@ public class CameraMove : MonoBehaviour
 
 				}
 			}
-//			if (speed.x < maxSpeedTemp && maxSpeedTemp > maxSpeed) 
-//			{
-//				accelerationTemp = -2f;
-//			}
-//			if (speed.x < maxSpeedTemp && maxSpeedTemp < maxSpeed) 
-//			{
-//				accelerationTemp = 0f;
-//			}
+			if (speed.x < maxSpeedTemp && maxSpeedTemp > maxSpeed) 
+			{
+				accelerationTemp = -2f;
+			}
+			if (speed.x < maxSpeedTemp && maxSpeedTemp < maxSpeed) 
+			{
+				accelerationTemp = 0f;
+			}
 
 			if (respawn.dead == true)
 			{
@@ -215,15 +238,4 @@ public class CameraMove : MonoBehaviour
 		speed.x = speedStop;
 		yield return new WaitForSeconds (respawn.spawnTimer);
 	}
-
-	// Respawner spiller (virker med korrekt Dead() i CharacterRespawn
-//	IEnumerator Camdead()
-//	{
-//
-//		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
-//		speed.x = speedStop;
-//		yield return new WaitForSeconds (respawn.spawnTimer);
-//		transform.position = new Vector3 (spawn.transform.position.x, player.transform.position.y + offSetY, this.transform.position.z);
-//		accelerationTemp = acceleration;
-//	}
 }
