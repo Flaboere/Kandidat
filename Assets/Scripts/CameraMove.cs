@@ -96,7 +96,7 @@ public class CameraMove : MonoBehaviour
 		}
 
 		// Print ting her:
-		print (transform.position.z);
+
 
 		if (camMoving)
 		{
