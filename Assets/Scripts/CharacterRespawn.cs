@@ -7,8 +7,11 @@ public class CharacterRespawn : MonoBehaviour
 	public Transform spawnpoint;
 	public float spawnTimer;
 
+	public string loadLevel;
+
 	public int deathScorePen = 1;
 	public Score score;
+	public CameraMove camMove;
 
 	public bool dead = false;
 
@@ -39,6 +42,7 @@ public class CharacterRespawn : MonoBehaviour
 		playerMov = GetComponent<PlayerMovement> ();
 		motor = GetComponent<CharacterMotor> ();
 		motor.enabled = true;
+		camMove = GameObject.FindObjectOfType<CameraMove> ();
 	}
 	
 	// Update is called once per frame
@@ -52,7 +56,7 @@ public class CharacterRespawn : MonoBehaviour
 		{
 			if (Input.GetButton("Start"))
 			{
-				Application.LoadLevel ("Run_01");
+				Application.LoadLevel (loadLevel);
 			}
 		}
 		

@@ -96,7 +96,7 @@ public class CameraMove : MonoBehaviour
 		}
 
 		// Print ting her:
-
+		print (speed.x);
 
 		if (camMoving)
 		{
@@ -187,14 +187,14 @@ public class CameraMove : MonoBehaviour
 
 				}
 			}
-			if (speed.x < maxSpeedTemp && maxSpeedTemp > maxSpeed) 
-			{
-				accelerationTemp = -2f;
-			}
-			if (speed.x < maxSpeedTemp && maxSpeedTemp < maxSpeed) 
-			{
-				accelerationTemp = 0f;
-			}
+//			if (speed.x < maxSpeedTemp && maxSpeedTemp > maxSpeed) 
+//			{
+//				accelerationTemp = -2f;
+//			}
+//			if (speed.x < maxSpeedTemp && maxSpeedTemp < maxSpeed) 
+//			{
+//				accelerationTemp = 0f;
+//			}
 
 			if (respawn.dead == true)
 			{
