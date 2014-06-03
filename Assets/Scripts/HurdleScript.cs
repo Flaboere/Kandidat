@@ -11,6 +11,8 @@ public class HurdleScript : MonoBehaviour
 	public int scoreRemove = 75;
 
 	public Renderer[] renderers;
+	public ParticleSystem add;
+	public ParticleSystem remove;
 
 	public CameraMove camMove;
 
@@ -54,6 +56,7 @@ public class HurdleScript : MonoBehaviour
 			dead = true;
 			score.score -= scoreRemove;
 			score.penalty -=1;
+			score.StartCoroutine("Penaltypoints");
 		}
 
 
@@ -89,7 +92,8 @@ public class HurdleScript : MonoBehaviour
 		{
 			if (!dead)
 			{
-				score.score += scoreAdd;		
+				score.StartCoroutine("Scorepoints");
+				score.score += scoreAdd;
 				dead = true;
 			}
 

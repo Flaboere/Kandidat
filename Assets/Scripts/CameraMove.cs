@@ -3,15 +3,37 @@ using System.Collections;
 
 public class CameraMove : MonoBehaviour 
 {
+	[HideInInspector]
+	public GameObject player;
+	public Transform playerTarget;
+
+	[HideInInspector]
+	public CharacterRespawn respawn;
+
+	[HideInInspector]
+	public GameObject spawn;
+
+	[HideInInspector]
+	public CharacterMotor motor;
+
+	[HideInInspector]
+	public PlayerMovement move;
+	
 	// Hastigheder for camera
 	private Vector3 speed;
 	public float acceleration;
-	public float accelerationTemp;
-	public GameObject player;
-	private float smoothY;
+	private float accelerationTemp;
+	public float maxSpeed = 5f;
+	private float maxSpeedTemp;
+	public float fastSpeed = 9f;
 
+	// Position i Y og Z
+	private float smoothY;
+	private float smoothZ;
+
+	// Stoppe hastighed
 	private float speedStop;
-	public float speedStopTime;
+	public float stopTime;
 
 	private float curVel6;
 	private float curVel5;
@@ -20,50 +42,41 @@ public class CameraMove : MonoBehaviour
 	private float curVel2;
 	private float curVel;
 
-	public float smoothTime = 1f;
+	// Smooth hastigheder
+	public float smoothTimeY = 1f;
+	public float smoothTimeZ = 0.3f;
+	public float smoothTimeSpeed = 1.5f;
+
+	// Posititioner og offsets
 	public float offSetY;
 	public float offSetX;
-	private float tempY;
-	public float posX;
-	public float playerOffsetX;
 	public float playerInFront;
-//	public float playerBehind;
-	public float speedMulti;
-	public float speedChange = 1.5f;
 
-	public float originZ;
+	private float originZ;
 	public float newPosZ;
 	private float newPosZTemp;
-	public float posZ;
-	public float posZTemp;
-	private float smoothZ;
-	public float speedSmoothZ = 0.3f;
-	public float velocityMultiply = 5f;
 
-	public CharacterRespawn respawn;
+	// Rotation
+	public float rotationSmoothTime = 20f;
+	private Vector3 velocity;
+	private Vector3 targetRotation;
 
-	public float camStartWait = 1;
-//	public float camSpawnWait = 1;
-
-	public bool camMoving = false;
-	public bool dynamicCam = true;
-	public bool staticCam = false;
-	private bool staticCamTemp = false;
-	private bool camStarting = false;
-	private bool camStarted = false;
-
-//	public float camPause = 1;
-
-	public GameObject spawn;
-	public CharacterMotor motor;
-	public PlayerMovement move;
+	private bool canRotate = true;
+	private Vector3 rotation;
+	public Quaternion lookAtRotation;
+	private Vector3 originRotation;
+	public Vector3 aheadRotation;
+	public float damping = 5;
 	
-	public float maxSpeed = 5f;
-	public float maxSpeedTemp;
-	public float fastSpeed = 9f;
+	public float camStartWait = 1;
 
-	public bool ahead = false;
-	public bool behind = false;
+	private bool camMoving = false;
+	private bool windUp = false;
+	private bool camActive = false;
+	
+	private bool ahead = false;
+	private bool behind = false;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -72,18 +85,15 @@ public class CameraMove : MonoBehaviour
 		motor = GameObject.FindObjectOfType<CharacterMotor> ();
 		move = GameObject.FindObjectOfType<PlayerMovement> ();
 		
+//		originRotation = this.transform.eulerAngles;
+
 		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
 		accelerationTemp = acceleration;
-		tempY = spawn.transform.position.y;
-		maxSpeedTemp = maxSpeed;
-		smoothZ = transform.position.z;
-		posZ = transform.position.z;
-		originZ = transform.position.z;
 
-		if (staticCam)
-		{
-			dynamicCam = false;
-		}
+		maxSpeedTemp = maxSpeed;
+
+		smoothZ = transform.position.z;
+		originZ = transform.position.z;
 
 	}
 	
@@ -92,18 +102,53 @@ public class CameraMove : MonoBehaviour
 	{
 		if (Input.GetButtonDown("Start"))
 		{
-			StartCoroutine (Camstart());
+			StartCoroutine (Startcam());
 		}
 
 		// Print ting her:
-		print (speed.x);
+
+
+		// Holder øje med hvor spilleren er forhold til kameraet
+		if (player.transform.position.x - playerInFront > transform.position.x)
+		{
+			ahead = true;
+			behind = false;
+		}
+		
+		if (player.transform.position.x - playerInFront < transform.position.x)
+		{
+			ahead = false;
+			behind = true;
+		}
 
 		if (camMoving)
 		{
+			// Kameraets Rotation
+			if (canRotate)
+			{
+//				lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
+//				transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
+
+				transform.eulerAngles = rotation;
+				targetRotation = aheadRotation;
+
+				if (ahead)
+				{
+					rotation = Vector3.SmoothDamp (rotation, targetRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
+				}
+				if (behind)
+				{
+					rotation = Vector3.SmoothDamp (rotation, originRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
+				}
+			}
+
+//			rotation = Quaternion.LookRotation(playerTarget.position - transform.position);
+//			transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * damping);
+
 			// Kameraets Y position
 			if (motor.grounded && !move.inWater)
 			{
-				smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTime * Time.deltaTime);
+				smoothY = Mathf.SmoothDamp (this.transform.position.y, player.transform.position.y + offSetY, ref curVel, smoothTimeY * Time.deltaTime);
 			}
 			else
 			{
@@ -111,48 +156,23 @@ public class CameraMove : MonoBehaviour
 			}
 
 			// Kameraets Z position
-//			posZTemp = posZ - (motor.movement.velocity.x * velocityMultiply);
 			newPosZTemp = originZ - newPosZ;
 
 			if (ahead && !behind)
 			{
-				smoothZ = Mathf.SmoothDamp (transform.position.z, newPosZTemp, ref curVel5, speedSmoothZ * Time.deltaTime);
+				smoothZ = Mathf.SmoothDamp (transform.position.z, newPosZTemp, ref curVel5, smoothTimeZ * Time.deltaTime);
 			}
 
 			if (!ahead && behind)
 			{
-				smoothZ = Mathf.SmoothDamp (transform.position.z, originZ, ref curVel6, speedSmoothZ * Time.deltaTime);
+				smoothZ = Mathf.SmoothDamp (transform.position.z, originZ, ref curVel6, smoothTimeZ * Time.deltaTime);
 			}
 		
 			// Bevæger kameraet
 			transform.position = new Vector3 (transform.position.x, smoothY, smoothZ) + speed * Time.deltaTime;
-//			transform.position = new Vector3 (transform.position.x, smoothY, smoothZ);
 
-			// Ændrer max hastighed alt efter hvor langt fra kameraet spilleren er
-			if (player.transform.position.x - playerInFront > transform.position.x)
-			{
-//				maxSpeedTemp = speedMulti;
-				ahead = true;
-				behind = false;
-			}
-
-			if (player.transform.position.x - playerInFront < transform.position.x)
-			{
-//				maxSpeedTemp = maxSpeed;
-				ahead = false;
-				behind = true;
-			}
-
-			if (staticCamTemp)
-			{
-				speed.x = (speed.x + accelerationTemp * Time.deltaTime);
-				if (speed.x > maxSpeed)
-				{
-					accelerationTemp = 0f;
-				}
-			}
-			
-			if (camStarting)
+			// Kameraet starter, og når tophastighed
+			if (windUp)
 			{
 				speed.x = (speed.x + accelerationTemp * Time.deltaTime);
 
@@ -160,41 +180,21 @@ public class CameraMove : MonoBehaviour
 				{
 					StartCoroutine(Camstartet());
 				}
-//				accelerationTemp = acceleration;
 			}
-			
-			
-			
 
-//			else
-//			{
-//				maxSpeedTemp = maxSpeed;
-//				ahead = false;
-//				behind =  false;
-//			}
-
-			// Slår acceleration fra og til alt efter om maxhastighed er nået
-			if (camStarted)
+			// Ændrer kamera speed alt efter hvor karakter er i forhold til kamera
+			if (camActive)
 			{
-				if (speed.x > maxSpeedTemp) 
+				if (behind) 
 				{
-	//				speed.x = maxSpeedTemp;
-					speed.x = Mathf.SmoothDamp(speed.x, maxSpeedTemp, ref curVel3, speedChange * Time.deltaTime);
+					speed.x = Mathf.SmoothDamp(speed.x, maxSpeedTemp, ref curVel3, smoothTimeSpeed * Time.deltaTime);
 				}
-				if (speed.x < maxSpeedTemp) 
+				if (ahead) 
 				{
-					speed.x = Mathf.SmoothDamp(speed.x, fastSpeed, ref curVel4, speedChange * Time.deltaTime);
+					speed.x = Mathf.SmoothDamp(speed.x, fastSpeed, ref curVel4, smoothTimeSpeed * Time.deltaTime);
 
 				}
 			}
-//			if (speed.x < maxSpeedTemp && maxSpeedTemp > maxSpeed) 
-//			{
-//				accelerationTemp = -2f;
-//			}
-//			if (speed.x < maxSpeedTemp && maxSpeedTemp < maxSpeed) 
-//			{
-//				accelerationTemp = 0f;
-//			}
 
 			if (respawn.dead == true)
 			{
@@ -204,26 +204,19 @@ public class CameraMove : MonoBehaviour
 		}
 	}
 
-	IEnumerator Camstart()
+	// Kameraet starter
+	IEnumerator Startcam()
 	{
 		yield return new WaitForSeconds (camStartWait);
 		camMoving = true;
-		if (dynamicCam)
-		{
-			camStarting = true;
-		}
-		if (staticCam)
-		{
-			staticCamTemp = true;
-		}
-
-
+		windUp = true;
 	}
 
+	// Kameraet har nået tophastighed
 	IEnumerator Camstartet ()
 	{
-		camStarting = false;
-		camStarted = true;
+		windUp = false;
+		camActive = true;
 		yield return new WaitForSeconds (0f);
 
 	}
@@ -231,10 +224,11 @@ public class CameraMove : MonoBehaviour
 	// Stopper kamera når spiller dør
 	IEnumerator Camdead()
 	{
-		camStarted = false;
-		staticCamTemp = false;
-		accelerationTemp = 0f;
-		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, speedStopTime * Time.deltaTime);
+		canRotate = false;
+//		lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
+//		transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
+		camActive = false;
+		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, stopTime * Time.deltaTime);
 		speed.x = speedStop;
 		yield return new WaitForSeconds (respawn.spawnTimer);
 	}
