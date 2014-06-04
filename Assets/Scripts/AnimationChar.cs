@@ -89,9 +89,18 @@ public class AnimationChar : MonoBehaviour
 		{
 			dustWalk.enableEmission = true;
 		}
+		if (!playermov.inWater)
+		{
+			playermov.FootStep ();
+		}
 	}
 	void FootStepOff()
 	{
 		dustWalk.enableEmission = false;
+
+//		if (!playermov.inWater)
+//		{
+//			playermov.FootStep ();
+//		}
 	}
 }

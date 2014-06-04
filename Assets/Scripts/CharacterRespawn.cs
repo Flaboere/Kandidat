@@ -76,17 +76,18 @@ public class CharacterRespawn : MonoBehaviour
 		if (hit.collider.CompareTag ("Kill") && !dead)
 		{
 			StartCoroutine (Dead());
-		}
-	}
-
-	void OnTriggerEnter (Collider hit)
-	{
-		if (hit.collider.CompareTag ("Kill") & !dead)
-		{
-			StartCoroutine (Dead());
 			StartCoroutine (VibrateDead());
 		}
 	}
+
+//	void OnTriggerEnter (Collider hit)
+//	{
+//		if (hit.collider.CompareTag ("Kill") & !dead)
+//		{
+//
+//			StartCoroutine (Dead());
+//		}
+//	}
 
 	// Genstarter scenen når man "dør"
 	IEnumerator Dead()
@@ -117,7 +118,7 @@ public class CharacterRespawn : MonoBehaviour
 	IEnumerator VibrateDead()
 	{
 		GamePad.SetVibration(player1, 0.2f, 0.4f);
-		yield return new WaitForSeconds (0.3f);
+		yield return new WaitForSeconds (0.6f);
 		GamePad.SetVibration(player1, 0.0f, 0.0f);
 	}
 

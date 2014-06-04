@@ -119,6 +119,10 @@ public class PlayerMovement : MonoBehaviour
 //	public GameObject waterSplash;
 
 
+	// Lyde
+	private AudioSource water;
+	private AudioSource steps;
+
 	PlayerIndex player1 = PlayerIndex.One;
 
 
@@ -136,6 +140,10 @@ public class PlayerMovement : MonoBehaviour
 //		waterSplash.SetActive (false);
 //		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
 //		particleSweat.SetActive(false);
+
+		// Lyde
+		water = GameObject.Find ("audio_water").GetComponent<AudioSource> ();
+		steps = GameObject.Find ("audio_steps").GetComponent<AudioSource> ();
 
 		// Animations stuff
 		animator = GetComponentInChildren<Animator>();
@@ -455,13 +463,16 @@ public class PlayerMovement : MonoBehaviour
 		sprintVibrate = (maxSprintAmount - sprintAmount)/10;
 
 
-		if (sprintAmount < (maxSprintAmount/2f) && sprintButtonDown)
+		if (canMove)
 		{
-			GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
-		}
-		if (sprintAmount >= (maxSprintAmount/3f) && sprintButtonUp)
-		{
-			GamePad.SetVibration(player1, 0f, 0f);
+			if (sprintAmount < (maxSprintAmount/2f) && sprintButtonDown)
+			{
+				GamePad.SetVibration(player1, sprintVibrate/3f, sprintVibrate/1.5f);
+			}
+			if (sprintAmount >= (maxSprintAmount/3f) && sprintButtonUp)
+			{
+				GamePad.SetVibration(player1, 0f, 0f);
+			}
 		}
 
 
@@ -565,8 +576,11 @@ public class PlayerMovement : MonoBehaviour
 //					particleSweat.SetActive(false);
 //				}
 			}
-				
+		
+		
+
 		}
+
 		if (controller.collisionFlags == CollisionFlags.None)
 		{
 			playerTouching = false;
@@ -575,6 +589,13 @@ public class PlayerMovement : MonoBehaviour
 		{
 			playerTouching = true;
 		}
+
+	}
+
+	public void FootStep()
+	{
+		steps.pitch = Random.Range (0.5f, 1f);
+		steps.Play ();
 	}
 
 	IEnumerator CanJump()
@@ -601,12 +622,12 @@ public class PlayerMovement : MonoBehaviour
 		motor.movement.maxAirAcceleration = tempSpeed;
 	}
 
-	IEnumerator ExtraJumpVibrate()
-	{
-		GamePad.SetVibration(player1, 0.1f, 0.3f);
-		yield return new WaitForSeconds (0.3f);
-		GamePad.SetVibration(player1, 0f, 0f);
-	}
+//	IEnumerator ExtraJumpVibrate()
+//	{
+//		GamePad.SetVibration(player1, 0.1f, 0.3f);
+//		yield return new WaitForSeconds (0.3f);
+//		GamePad.SetVibration(player1, 0f, 0f);
+//	}
 
 	// Kollision for hvis spilleren er i/ude af Water
 	void OnTriggerEnter(Collider hit)
@@ -614,6 +635,8 @@ public class PlayerMovement : MonoBehaviour
 		if (hit.gameObject.CompareTag ("Water"))
 		{
 			inWater = true;
+			water.Play();
+			water.pitch = Random.Range(0.5f, 0.8f);
 			canSprintOn = false;
 			sprintButtonUp = true;
 			sprinting = false;
@@ -637,7 +660,7 @@ public class PlayerMovement : MonoBehaviour
 		if (hit.gameObject.CompareTag ("ExtraJump")) 
 		{
 			extraJump = true;
-			StartCoroutine (ExtraJumpVibrate());
+//			StartCoroutine (ExtraJumpVibrate());
 		}
 	}
 	
