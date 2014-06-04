@@ -73,8 +73,8 @@ public class Score : MonoBehaviour
 		sprintBar.fillAmount = playerMovement.sprintAmount/10;
 		if (!respawn.dead)
 		{
-			scoreLabel.text = "Score is = " + score;
-			penaltyLabel.text = "Penalty left = " + penalty;
+			scoreLabel.text = "" + score;
+			penaltyLabel.text = "" + penalty;
 
 		}
 

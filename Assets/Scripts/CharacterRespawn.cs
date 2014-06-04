@@ -54,7 +54,7 @@ public class CharacterRespawn : MonoBehaviour
 
 		if (dead && canRespawn)
 		{
-			if (Input.GetButton("Start"))
+			if (Input.GetButton("X"))
 			{
 				Application.LoadLevel (loadLevel);
 			}

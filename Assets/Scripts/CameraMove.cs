@@ -87,7 +87,7 @@ public class CameraMove : MonoBehaviour
 		
 //		originRotation = this.transform.eulerAngles;
 
-		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
+//		transform.position = new Vector3 (spawn.transform.position.x + offSetX, this.transform.position.y, this.transform.position.z);
 		accelerationTemp = acceleration;
 
 		maxSpeedTemp = maxSpeed;
@@ -100,7 +100,7 @@ public class CameraMove : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if (Input.GetButtonDown("Start"))
+		if (Input.GetButtonDown("X"))
 		{
 			StartCoroutine (Startcam());
 		}
@@ -109,13 +109,13 @@ public class CameraMove : MonoBehaviour
 
 
 		// Holder øje med hvor spilleren er forhold til kameraet
-		if (player.transform.position.x - playerInFront > transform.position.x)
+		if (player.transform.position.x + playerInFront > transform.position.x)
 		{
 			ahead = true;
 			behind = false;
 		}
 		
-		if (player.transform.position.x - playerInFront < transform.position.x)
+		if (player.transform.position.x + playerInFront < transform.position.x)
 		{
 			ahead = false;
 			behind = true;
@@ -126,8 +126,24 @@ public class CameraMove : MonoBehaviour
 			// Kameraets Rotation
 			if (canRotate)
 			{
+//				transform.eulerAngles = new Vector3((Mathf.Clamp(transform.eulerAngles.x, -30f, 90f)),(Mathf.Clamp(transform.eulerAngles.y, -30f, 90f)), (Mathf.Clamp(transform.eulerAngles.z, -30f, 90f)));
+
 //				lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
 //				transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
+
+//				transform.rotation = Quaternion.Euler(Vector3.Slerp(transform.eulerAngles, lookAtRotation.eulerAngles, Time.deltaTime * damping));
+
+//				transform.eulerAngles = Vector3.Slerp(transform.eulerAngles, lookAtRotation.eulerAngles, Time.deltaTime * damping);
+
+//				if (ahead)
+//				{
+//
+//				}
+
+//				if (behind)
+//				{
+
+//				}
 
 				transform.eulerAngles = rotation;
 				targetRotation = aheadRotation;
@@ -225,8 +241,8 @@ public class CameraMove : MonoBehaviour
 	IEnumerator Camdead()
 	{
 		canRotate = false;
-//		lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
-//		transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
+		lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
+		transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
 		camActive = false;
 		speedStop = Mathf.SmoothDamp (speed.x, 0f, ref curVel2, stopTime * Time.deltaTime);
 		speed.x = speedStop;

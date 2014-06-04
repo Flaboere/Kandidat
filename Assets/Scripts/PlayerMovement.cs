@@ -206,7 +206,7 @@ public class PlayerMovement : MonoBehaviour
 			isMoving = true;
 		}
 
-		if (Input.GetButtonDown ("Start"))
+		if (Input.GetButtonDown ("X"))
 		{
 			canMove = true;
 		}
