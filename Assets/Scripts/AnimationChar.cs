@@ -85,14 +85,14 @@ public class AnimationChar : MonoBehaviour
 
 	void FootStep ()
 	{
-		if (motor.grounded)
+		if (motor.grounded && !playermov.inWater)
 		{
 			dustWalk.enableEmission = true;
 		}
-		if (!playermov.inWater)
-		{
+//		if (!playermov.inWater)
+//		{
 			playermov.FootStep ();
-		}
+//		}
 	}
 	void FootStepOff()
 	{

@@ -80,14 +80,14 @@ public class CharacterRespawn : MonoBehaviour
 		}
 	}
 
-//	void OnTriggerEnter (Collider hit)
-//	{
-//		if (hit.collider.CompareTag ("Kill") & !dead)
-//		{
-//
-//			StartCoroutine (Dead());
-//		}
-//	}
+	void OnTriggerEnter (Collider hit)
+	{
+		if (hit.collider.CompareTag ("Kill") & !dead)
+		{
+			StartCoroutine (VibrateDead());
+			StartCoroutine (Dead());
+		}
+	}
 
 	// Genstarter scenen når man "dør"
 	IEnumerator Dead()

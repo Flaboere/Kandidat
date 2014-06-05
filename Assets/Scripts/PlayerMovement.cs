@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool canMove = false;
 	public bool isMoving = false;
 	public bool isStopped = true;
+	private bool inAir;
 
 	// Am i out of breath after sprinting
 	private bool outOfBreath = false;
@@ -64,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
 	public float sprintJumpRemove = 0.1f;
 	public float sprintRecover = 0.05f;
 	public bool canSprint = true;
-	private bool sprinting = false;
+	public bool sprinting = false;
 //	public float sprintVibrateTemp = 10;
 	private float sprintVibrate;
 
@@ -122,6 +123,16 @@ public class PlayerMovement : MonoBehaviour
 	// Lyde
 	private AudioSource water;
 	private AudioSource steps;
+	public AudioSource stepsWater;
+	private AudioSource audioJump;
+	private AudioSource audioJumpVoice;
+	public AudioClip jumpTakeOff;
+	public AudioClip jumpLand;
+	public AudioClip[] jumpVoice;
+	public AudioClip[] landVoice;
+	public AudioClip[] sprintVoice;
+	public AudioClip[] outOfBreathVoice;
+	private bool sprintBreathe = true;
 
 	PlayerIndex player1 = PlayerIndex.One;
 
@@ -144,6 +155,9 @@ public class PlayerMovement : MonoBehaviour
 		// Lyde
 		water = GameObject.Find ("audio_water").GetComponent<AudioSource> ();
 		steps = GameObject.Find ("audio_steps").GetComponent<AudioSource> ();
+		stepsWater = GameObject.Find ("audio_steps_water").GetComponent<AudioSource> ();
+		audioJump = GameObject.Find ("audio_jump").GetComponent<AudioSource> ();
+		audioJumpVoice = GameObject.Find ("audio_jump_voice").GetComponent<AudioSource> ();
 
 		// Animations stuff
 		animator = GetComponentInChildren<Animator>();
@@ -188,6 +202,8 @@ public class PlayerMovement : MonoBehaviour
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
 
+
+
 		// Skifter kamera baggrund når hop knappen trykkes
 		//		Camera.main.backgroundColor = Input.GetButton ("Jump") ? Color.blue : Color.red;
 
@@ -200,6 +216,12 @@ public class PlayerMovement : MonoBehaviour
 
 		// Print ting her:
 
+
+		// Bools for at lande på jorden
+		if (!motor.grounded)
+		{
+			inAir = true;
+		}
 
 		// Bools for bevægelse
 		if ((motor.movement.velocity.x < 1f && motor.movement.velocity.x > -1f) || (Input.GetAxis ("Horizontal") > -0.2f && Input.GetAxis ("Horizontal") < 0.2f))
@@ -219,17 +241,20 @@ public class PlayerMovement : MonoBehaviour
 			canMove = true;
 		}
 
-
+		// Standard styring
+//		motor.inputMoveDirection = Vector3.right * Input.GetAxis ("Horizontal");
+//		motor.inputJump = Input.GetButton ("Jump");
 	
 		// Input til styring
 		if (canMove)
 		{
-			// Sætter input og hvis outOfBreath gangner den med 0 = intet input
+			// Sætter input, og hvis "outOfBreath" gangner den med 0 = intet input
 			motor.inputMoveDirection = Vector3.right * Input.GetAxis("Horizontal") * (outOfBreath ? 0f : 1f);
 
 
 			if (!outOfBreath)
 			{
+
 				// Normalt input, uden tilløb eller pause ved hop
 				if (tilløbOff)
 				{
@@ -242,6 +267,13 @@ public class PlayerMovement : MonoBehaviour
 					{
 						motor.inputJump = Input.GetButton ("Jump");
 					}
+					if (canJumpNow && Input.GetButtonDown ("Jump"))
+					{
+						audioJumpVoice.pitch = Random.Range(0.9f, 1.1f);
+						audioJumpVoice.clip = jumpVoice[Random.Range(0,jumpVoice.Length)];
+						audioJumpVoice.Play();
+					}
+					
 					if (motor.grounded && (jumpCounterTemp <= 0f))
 					{
 						canJumpNow = true;
@@ -397,23 +429,21 @@ public class PlayerMovement : MonoBehaviour
 			}
 			
 			// Sprint mekanik
-			if (sprintButtonDown && sprintAmount > 0f && motor.grounded)
+			if (sprintButtonDown && sprintAmount > 0f && motor.grounded && isMoving && !isStopped)
 			{
 				sprintAmount -= sprintRemove;
 				sprinting = true;
 			}
+
+			if (!isMoving && isStopped)
+			{
+				sprinting = false;
+			}
+
 			if (sprintButtonDown && sprintAmount > 0f && !motor.grounded && sprinting)
 			{
 				sprintAmount -= sprintRemove;
 			}
-
-//			if (sprintButtonDown && sprintAmount <= 0f && motor.grounded)
-//			{
-//				sprinting = false;
-//				outOfBreath = true;
-//			}
-
-
 		}
 
 		if (sprintAmount <= 0f && motor.grounded)
@@ -446,7 +476,7 @@ public class PlayerMovement : MonoBehaviour
 			motor.movement.maxSidewaysSpeed = sprintMoveSpeedTemp;
 			motor.movement.maxGroundAcceleration = sprintMoveAccelTemp;
 			motor.movement.maxAirAcceleration = sprintAirAccelTemp;
-			motor.jumping.baseHeight = sprintBaseHeightTemp;
+//			motor.jumping.baseHeight = sprintBaseHeightTemp;
 			motor.jumping.extraHeight = sprintExtraHeightTemp;
 
 		}
@@ -524,15 +554,6 @@ public class PlayerMovement : MonoBehaviour
 
 				}
 
-//				if (Input.GetAxis ("Horizontal") > -0.1f && Input.GetAxis ("Horizontal") < 0.1f && !idling)
-//				{
-//					moveRight = false;
-//					moveLeft = false;
-//					idling = true;
-//					jumpUp = false;
-//					jumpForward = false;
-//
-//				}
 				if (isStopped && !idling && motor.grounded)
 				{
 					moveRight = false;
@@ -560,25 +581,52 @@ public class PlayerMovement : MonoBehaviour
 					moveRight = false;
 					moveLeft = false;
 				}
+			}		 
+		}
 
-				//Temp
-//				(Input.GetAxis("Horizontal") < -0.2f ) || (Input.GetAxis("Horizontal") > 0.2f )
-//				(Input.GetAxis("Horizontal") > -0.2f ) || (Input.GetAxis("Horizontal") < 0.2f ))
+		// Lyde (nogle lyde kaldes under andre funktioner)
+		if (Input.GetButtonDown ("Jump") && motor.grounded)
+		{
+			audioJumpVoice.pitch = Random.Range(0.9f, 1.1f);
+			audioJumpVoice.clip = jumpVoice[Random.Range(0,jumpVoice.Length)];
+			audioJumpVoice.Play();
+		}
 
-
-//				// Effekter
-//				if (Input.GetButton ("Jump") && !motor.grounded)
-//				{
-//					particleSweat.SetActive(true);
-//				}
-//				if (motor.grounded)
-//				{
-//					particleSweat.SetActive(false);
-//				}
+		if (inAir && motor.grounded)
+		{
+			if (!inWater)
+			{
+				audioJump.pitch = Random.Range(0.8f, 1.2f);
+				audioJump.volume = (0.35f);
+				audioJump.clip = jumpLand;
+				audioJump.Play();
+				inAir = false;
 			}
-		
-		
+			if (!inWater)
+			{
+				audioJumpVoice.pitch = Random.Range(0.9f, 1.1f);
+				audioJumpVoice.clip = landVoice[Random.Range(0,landVoice.Length)];
+				audioJumpVoice.Play();
+			}
+		}
 
+		if (sprinting && motor.grounded && !inWater)
+		{
+			if (sprintBreathe)
+			{
+				StartCoroutine(SprintBreathe());
+
+			}
+		}
+
+		if (inWater)
+		{
+			if (inAir && motor.grounded)
+			{
+				audioJumpVoice.clip = landVoice[Random.Range(0,landVoice.Length)];
+				audioJumpVoice.Play();
+				inAir = false;
+			}
 		}
 
 		if (controller.collisionFlags == CollisionFlags.None)
@@ -590,12 +638,49 @@ public class PlayerMovement : MonoBehaviour
 			playerTouching = true;
 		}
 
+		if (outOfBreath)
+		{
+			if (sprintBreathe)
+			{
+				StartCoroutine(OutOfBreathing());
+			}
+		}
 	}
 
 	public void FootStep()
 	{
-		steps.pitch = Random.Range (0.5f, 1f);
-		steps.Play ();
+		if (!inWater)
+		{
+			steps.pitch = Random.Range (0.5f, 1f);
+			steps.Play ();
+		}
+//		else
+//		{
+//			print ("ding");
+//			stepsWater.pitch = Random.Range (0.8f, 1.2f);
+//			stepsWater.Play();
+//
+//		}
+	}
+
+	IEnumerator OutOfBreathing()
+	{
+		sprintBreathe = false;
+		audioJumpVoice.pitch = Random.Range(0.9f, 1.2f);
+		audioJumpVoice.clip = outOfBreathVoice[Random.Range(0,outOfBreathVoice.Length)];
+		audioJumpVoice.Play();
+		yield return new WaitForSeconds (2f);
+		sprintBreathe = true;
+	}
+
+	IEnumerator SprintBreathe()
+	{
+		sprintBreathe = false;
+		audioJumpVoice.pitch = Random.Range(0.9f, 1.2f);
+		audioJumpVoice.clip = sprintVoice[Random.Range(0,sprintVoice.Length)];
+		audioJumpVoice.Play();
+		yield return new WaitForSeconds (0.6f);
+		sprintBreathe = true;
 	}
 
 	IEnumerator CanJump()
@@ -636,25 +721,11 @@ public class PlayerMovement : MonoBehaviour
 		{
 			inWater = true;
 			water.Play();
-			water.pitch = Random.Range(0.5f, 0.8f);
+			water.pitch = Random.Range(0.5f, 1f);
 			canSprintOn = false;
 			sprintButtonUp = true;
 			sprinting = false;
 			animChar.StartCoroutine("Watersplash");
-//			waterSplash.SetActive(true);
-
-//			waterSplash.SetActive(true);
-//			waterSplash.SetActive(false);
-//			waterSplash.SetActive = false;
-			// Her slår jeg "water" patikel til
-//			foreach (ParticleSystem particle in particles)
-//			{
-//				if (gameObject.transform.name ="Particle_Water")
-//				{
-//					gameObject.SetActive = true;
-//				}
-//			}
-
 		}
 
 		if (hit.gameObject.CompareTag ("ExtraJump")) 

@@ -126,7 +126,6 @@ public class HurdleScript : MonoBehaviour
 
 		rigidbody.AddForce (pushedForce, 0f, 0f);
 		pushed = true;
-
 //		playerTouching = false;
 	}
 
