@@ -40,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool tilløbUp = false;
 	[HideInInspector]
 	public bool tilløbAltid = false;
-	[HideInInspector]
+//	[HideInInspector]
 	public bool hopPause = false;
 
 	// Do i have an extra jump picked up
@@ -48,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
 	public bool extraJump = false;
 	
 	// Is double jump feature activated
-	[HideInInspector]
+//	[HideInInspector]
 	public bool doubleJumpOn = true;
 	
 	// Can i double jump right now
@@ -57,7 +57,9 @@ public class PlayerMovement : MonoBehaviour
 	private float startJumpHeight;
 	
 	// Bruges til pause mellem hop
+	[HideInInspector]
 	public float canJumpTimer = 1.5f;
+	[HideInInspector]
 	public float canJumpTimerTemp = 0f;
 
 	//variabler for sprint funktion
@@ -114,11 +116,11 @@ public class PlayerMovement : MonoBehaviour
 	private Transform animatorGameObject;
 
 	// Pause mellem hop - variabler
-	[HideInInspector]
+//	[HideInInspector]
 	public float jumpCounter = 20;
 	[HideInInspector]
 	public bool canJumpNow = true;
-	[HideInInspector]
+//	[HideInInspector]
 	public float jumpCounterTemp;
 
 	// Lyde

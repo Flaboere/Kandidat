@@ -53,6 +53,11 @@ public class CameraFollow : MonoBehaviour
 	void FixedUpdate () 
 	{
 
+		if (Input.GetButton("X"))
+		{
+			move.canMove = true;
+		}
+
 			//		acceleration = acceleration + accelRate * Time.deltaTime;
 //			speed.x = speed.x + accelerationTemp * Time.deltaTime;
 			

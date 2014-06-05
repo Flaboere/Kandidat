@@ -1,14 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\PlayerMovement.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\CameraMove.cs">
     <Files>
-      <File FileName="Assets\Scripts\CameraMove.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\AnimationChar.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\CharacterRespawn.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\HurdleScript.cs" Line="15" Column="31" />
-      <File FileName="Assets\Scripts\PlayerMovement.cs" Line="146" Column="4" />
-      <File FileName="Assets\Scripts\CharacterMotor.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\CrowdAudio.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\CameraMove.cs" Line="141" Column="28" />
+      <File FileName="Assets\Scripts\PlayerMovement.cs" Line="119" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -78,7 +78,9 @@ public class CameraMove : MonoBehaviour
 	private bool behind = false;
 
 	// audio
-	public AudioSource audioStart;
+	private AudioSource audioStart;
+	public AudioClip startLow;
+	public AudioClip startHigh;
 
 	// Use this for initialization
 	void Start () 
@@ -136,8 +138,8 @@ public class CameraMove : MonoBehaviour
 			{
 //				transform.eulerAngles = new Vector3((Mathf.Clamp(transform.eulerAngles.x, -30f, 90f)),(Mathf.Clamp(transform.eulerAngles.y, -30f, 90f)), (Mathf.Clamp(transform.eulerAngles.z, -30f, 90f)));
 
-//				lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
-//				transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
+				lookAtRotation = Quaternion.LookRotation(playerTarget.position - transform.position);
+				transform.rotation = Quaternion.Slerp(transform.rotation, lookAtRotation, Time.deltaTime * damping);
 
 //				transform.rotation = Quaternion.Euler(Vector3.Slerp(transform.eulerAngles, lookAtRotation.eulerAngles, Time.deltaTime * damping));
 
@@ -153,17 +155,17 @@ public class CameraMove : MonoBehaviour
 
 //				}
 
-				transform.eulerAngles = rotation;
-				targetRotation = aheadRotation;
-
-				if (ahead)
-				{
-					rotation = Vector3.SmoothDamp (rotation, targetRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
-				}
-				if (behind)
-				{
-					rotation = Vector3.SmoothDamp (rotation, originRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
-				}
+//				transform.eulerAngles = rotation;
+//				targetRotation = aheadRotation;
+//
+//				if (ahead)
+//				{
+//					rotation = Vector3.SmoothDamp (rotation, targetRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
+//				}
+//				if (behind)
+//				{
+//					rotation = Vector3.SmoothDamp (rotation, originRotation, ref velocity, rotationSmoothTime * Time.deltaTime);
+//				}
 			}
 
 //			rotation = Quaternion.LookRotation(playerTarget.position - transform.position);
@@ -230,9 +232,16 @@ public class CameraMove : MonoBehaviour
 
 	IEnumerator StartSequence()
 	{
-		yield return new WaitForSeconds (2f);
+		yield return new WaitForSeconds (1.5f);
 		audioStart.Play ();
-		yield return new WaitForSeconds (0f);
+		yield return new WaitForSeconds (1.5f);
+		audioStart.Play ();
+		yield return new WaitForSeconds (1.5f);
+		audioStart.Play ();
+		yield return new WaitForSeconds (1.5f);
+		audioStart.clip = startHigh;
+		audioStart.Play ();
+		yield return new WaitForSeconds (1f);
 		camMoving = true;
 		move.canMove = true;
 		windUp = true;
