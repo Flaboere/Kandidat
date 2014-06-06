@@ -23,12 +23,12 @@ public class HurdleScript : MonoBehaviour
 	public CharacterMotor motor;
 	public CharacterController controller;
 	private float pushedForce;
-	private bool playerTouching = false;
+//	private bool playerTouching = false;
 	public bool pushed = false;
 	public float pushAmp = 0f;
 	public float vertPushAmp = 10f;
 
-
+	public CrowdAudio crowd;
 	public Score score;
 	// Use this for initialization
 	void Start () 
@@ -39,6 +39,7 @@ public class HurdleScript : MonoBehaviour
 		camMove = GameObject.FindObjectOfType<CameraMove> ();
 		score = GameObject.FindObjectOfType<Score>();
 		renderers = GetComponentsInChildren<Renderer> ();
+		crowd = GameObject.FindObjectOfType<CrowdAudio> ();
 //		StartCoroutine (Activation ());
 	}
 	
@@ -56,6 +57,7 @@ public class HurdleScript : MonoBehaviour
 			dead = true;
 			score.score -= scoreRemove;
 			score.penalty -=1;
+			crowd.HurdleMiss();
 			score.StartCoroutine("Penaltypoints");
 		}
 
@@ -94,6 +96,7 @@ public class HurdleScript : MonoBehaviour
 			{
 				score.StartCoroutine("Scorepoints");
 				score.score += scoreAdd;
+
 				dead = true;
 			}
 
@@ -105,7 +108,7 @@ public class HurdleScript : MonoBehaviour
 		if (hit.gameObject.CompareTag ("Player"))
 		{
 
-			if (move.playerTouching == true && !pushed)
+			if (motor.grounded && !pushed)
 			{
 				Playertouching();
 			}
@@ -123,7 +126,6 @@ public class HurdleScript : MonoBehaviour
 		{
 			pushedForce = motor.movement.velocity.x * pushAmp;
 		}
-
 		rigidbody.AddForce (pushedForce, 0f, 0f);
 		pushed = true;
 //		playerTouching = false;

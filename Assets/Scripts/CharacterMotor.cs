@@ -17,6 +17,9 @@ public class CharacterMotor : MonoBehaviour
 	private bool isForwardBoost = false;
 	private float forwardBoostStartTime;
 
+	private PlayerMovement playerMov;
+	public float forwardBoostSprint = 2;
+
     // For the next variables, [System.NonSerialized] tells Unity to not serialize the variable or show it in the inspector view.
     // Very handy for organization!
 
@@ -212,6 +215,7 @@ public class CharacterMotor : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
         tr = transform;
+		playerMov = GetComponent<PlayerMovement> ();
     }
 
     private void UpdateFunction()
@@ -254,14 +258,29 @@ public class CharacterMotor : MonoBehaviour
 		Vector3 forwardBoost = Vector3.zero;
 		if (isForwardBoost) 
 		{
-			float timeSinceStart = Time.time - forwardBoostStartTime;
-			if(timeSinceStart < forwardBoostDuration)
+			if (!playerMov.sprinting)
 			{
-				forwardBoost.x = velocity.x * forwardBoostCurve.Evaluate(Time.time - forwardBoostStartTime);
+				float timeSinceStart = Time.time - forwardBoostStartTime;
+				if(timeSinceStart < forwardBoostDuration)
+				{
+					forwardBoost.x = velocity.x * forwardBoostCurve.Evaluate(Time.time - forwardBoostStartTime);
+				}
+				else
+				{
+					isForwardBoost = false;
+				}
 			}
-			else
+			if (playerMov.sprinting)
 			{
-				isForwardBoost = false;
+				float timeSinceStart = Time.time - forwardBoostStartTime;
+				if(timeSinceStart < forwardBoostDuration)
+				{
+					forwardBoost.x = velocity.x * forwardBoostCurve.Evaluate(Time.time - forwardBoostStartTime) * forwardBoostSprint;
+				}
+				else
+				{
+					isForwardBoost = false;
+				}
 			}
 		}
 

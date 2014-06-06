@@ -4,59 +4,72 @@ using XInputDotNetPure;
 
 public class PlayerMovement : MonoBehaviour 
 {
+	PlayerIndex player1 = PlayerIndex.One;
 
-	[HideInInspector]
-	public bool activeMovement = true;
+	// Import af komponenter
 	private CharacterMotor motor;
-	private float startJumpHeight;
-//	private float inAirJumpHeight;
-//	public float inAirJumpMultiplier = 10;
-
-	public bool slowMo = false;
-
-	// Variabler for kontakt med Hurlde
-	[HideInInspector]
-	public bool playerTouching = false;
 	private CharacterController controller;
+	private AnimationChar animChar;
 
-	// Do i have an extra jump picked up
-	public bool extraJump = false;
+	// Spiller scenen i slowmotion
+	public bool slowMo = false;
+	public float slowMoSpeed = 0.5f;
 
-	[HideInInspector]
-	// Is double jump feature activated
-	public bool doubleJumpOn = true;
-
-	[HideInInspector]
-	// Can i double jump right now
-	public bool canDoubleJump = true;
-
-	// Can i move
+	// Information omkring hvorvidt figuren bevæger sig
 	public bool canMove = false;
-	public bool isMoving = false;
-	public bool isStopped = true;
+	private bool isMoving = false;
+	private bool isStopped = true;
 	private bool inAir;
-
-	// Am i out of breath after sprinting
-	private bool outOfBreath = false;
-
-	// Typer af hop til/fra
-	public bool tilløbUp = false;
-	public bool tilløbAltid = true;
-	public bool tilløbOff = false;
-	public bool hopPause = false;
-
-//	public bool canJump = true;
-//	public bool jumped = false;
-	public float canJumpTimer = 1.5f;
-	public float canJumpTimerTemp = 0f;
+	public bool characterFlipping = true;
+	public bool characterTurning = false;
+	public bool facingRight = true;
+	public bool facingLeft = false;
+	public bool analogRight = false;
+	public bool analogLeft = false;
+	public float turnSpeed = 2f;
+	public bool turning = false;
 
 	// floats der indeholder den speed man har når banen starter
 	private float tempSpeed;
 	private float tempMoveAccel;
 	private float tempAirAccel;
 
+	// Typer af hop til/fra
+	public bool standardHop = true;
+	[HideInInspector]
+	public bool tilløbUp = false;
+	[HideInInspector]
+	public bool tilløbAltid = false;
+	[HideInInspector]
+	public bool hopPause = false;
+
+	// Do i have an extra jump picked up
+	[HideInInspector]
+	public bool extraJump = false;
+	
+	// Is double jump feature activated
+	[HideInInspector]
+	public bool doubleJumpOn = true;
+	
+	// Can i double jump right now
+	[HideInInspector]
+	public bool canDoubleJump = true;
+	private float startJumpHeight;
+	
+	// Bruges til pause mellem hop
+	public float canJumpTimer = 1.5f;
+	public float canJumpTimerTemp = 0f;
 
 	//variabler for sprint funktion
+	public bool canSprint = true;
+	[HideInInspector]
+	public bool sprinting = false;
+
+	// Sprint input
+	private bool sprintButtonDown = false;
+	private bool sprintButtonUp = true;
+
+
 	[HideInInspector]
 	public float sprintAmount = 10;
 	private float maxSprintAmount = 10;
@@ -64,33 +77,25 @@ public class PlayerMovement : MonoBehaviour
 	public float sprintRemove = 0.1f;
 	public float sprintJumpRemove = 0.1f;
 	public float sprintRecover = 0.05f;
-	public bool canSprint = true;
-	public bool sprinting = false;
-//	public float sprintVibrateTemp = 10;
+	private bool outOfBreath = false;
 	private float sprintVibrate;
-
-	// Sprint input
-	private bool sprintButtonDown = false;
-	private bool sprintButtonUp = true;
-
-
+	
 	// floats for sprint hastigheder
 	public bool canSprintOn = true;
 	public float sprintMoveSpeed = 15;
 	public float sprintMoveAccel = 15;
 	public float sprintAirAccel = 15;
-	public float sprintBaseHeight = 15;
+//	public float sprintBaseHeight = 15;
 	public float sprintExtraHeight = 15;
-//	public bool sprinting = false;
 	private float sprintMoveSpeedTemp;
 	private float sprintMoveAccelTemp;
 	private float sprintAirAccelTemp;
 	private float tempBaseHeight;
 	private float tempExtraHeight;
-	private float sprintBaseHeightTemp;
+//	private float sprintBaseHeightTemp;
 	private float sprintExtraHeightTemp;
 
-
+	
 	// Variabler for når man er i vand
 	public bool inWater = false;
 	public float waterMoveSpeed = 5;
@@ -103,22 +108,18 @@ public class PlayerMovement : MonoBehaviour
 	private bool moveLeft;
 	private bool jumpUp;
 	private bool jumpForward;
-	public bool jumpingUp;
+	private bool jumpingUp;
 	private bool idling;
 	private Animator animator;
 	private Transform animatorGameObject;
 
 	// Pause mellem hop - variabler
+	[HideInInspector]
 	public float jumpCounter = 20;
+	[HideInInspector]
 	public bool canJumpNow = true;
+	[HideInInspector]
 	public float jumpCounterTemp;
-
-	// Partikel effekter
-//	private GameObject particleSweat;
-	public AnimationChar animChar;
-//	public ParticleSystem[] particles;
-//	public GameObject waterSplash;
-
 
 	// Lyde
 	private AudioSource water;
@@ -134,23 +135,19 @@ public class PlayerMovement : MonoBehaviour
 	public AudioClip[] outOfBreathVoice;
 	private bool sprintBreathe = true;
 
-	PlayerIndex player1 = PlayerIndex.One;
+
 
 
 	void Start () 
 	{
 		if (slowMo)
 		{
-			Time.timeScale = 0.5f;
+			Time.timeScale = slowMoSpeed;
 		}
 
 		// Henter basis komponenter
 		motor = GetComponent<CharacterMotor>();
 		controller = GetComponent<CharacterController> ();
-//		waterSplash = GameObject.Find ("Particle_water");
-//		waterSplash.SetActive (false);
-//		particleSweat = GetComponentInChildren<ParticleSystem>().gameObject;
-//		particleSweat.SetActive(false);
 
 		// Lyde
 		water = GameObject.Find ("audio_water").GetComponent<AudioSource> ();
@@ -183,16 +180,13 @@ public class PlayerMovement : MonoBehaviour
 		sprintAirAccelTemp = tempAirAccel + sprintAirAccel;
 
 		// hop under sprint
-		sprintBaseHeightTemp = tempBaseHeight + sprintBaseHeight;
+//		sprintBaseHeightTemp = tempBaseHeight + sprintBaseHeight;
 		sprintExtraHeightTemp = tempExtraHeight + sprintExtraHeight;
 
 
 		// Movement speeds i vand
 		waterMoveSpeedTemp = tempSpeed - waterMoveSpeed;
 		waterMoveAccelTemp = tempMoveAccel - waterMoveAccel;
-
-		// Hoppe pause
-//		jumpCounterTemp = jumpCounter;
 	}
 	
 
@@ -202,8 +196,7 @@ public class PlayerMovement : MonoBehaviour
 		PlayerIndex controllerNumber = PlayerIndex.One;
 		GamePadState state = GamePad.GetState(player1);
 
-
-
+		// Ting Peter har lavet ved fejltagelse der var AWESOME
 		// Skifter kamera baggrund når hop knappen trykkes
 		//		Camera.main.backgroundColor = Input.GetButton ("Jump") ? Color.blue : Color.red;
 
@@ -256,7 +249,7 @@ public class PlayerMovement : MonoBehaviour
 			{
 
 				// Normalt input, uden tilløb eller pause ved hop
-				if (tilløbOff)
+				if (standardHop)
 				{
 					motor.inputJump = Input.GetButton ("Jump");
 				}
@@ -295,14 +288,12 @@ public class PlayerMovement : MonoBehaviour
 				// Hoppe input - tilløb på jumpUp
 				if (tilløbUp)
 				{
-
 					if (isStopped)
 					{
 						if (Input.GetButton ("Jump") && motor.grounded)
 						{
-
-						canJumpTimerTemp += 1f;
-						jumpingUp = true;
+							canJumpTimerTemp += 1f;
+							jumpingUp = true;
 
 							if (canJumpTimerTemp >= canJumpTimer)
 							{
@@ -313,7 +304,6 @@ public class PlayerMovement : MonoBehaviour
 						{
 							jumpingUp = false;
 						}
-
 					}
 					else if (isMoving)
 					{
@@ -350,16 +340,13 @@ public class PlayerMovement : MonoBehaviour
 				}
 
 
-
-
 				if (doubleJumpOn)
 				{
 					if (motor.grounded)
 					{
 						canDoubleJump = true;	
 					}
-					
-					
+
 					if (motor.jumping.baseHeight != startJumpHeight) 
 					{
 						motor.jumping.baseHeight = startJumpHeight;
@@ -389,29 +376,13 @@ public class PlayerMovement : MonoBehaviour
 					}
 				}
 
-				// Water movement
-				if (inWater)
-				{
-					motor.movement.maxSidewaysSpeed = waterMoveSpeedTemp;
-					motor.movement.maxGroundAcceleration = waterMoveAccelTemp;
-				}
-				if (!inWater && !sprinting)
-				{
-					motor.movement.maxSidewaysSpeed = tempSpeed;
-					motor.movement.maxGroundAcceleration = tempMoveAccel;
-					motor.movement.maxSidewaysSpeed = tempSpeed;
-					motor.jumping.baseHeight = tempBaseHeight;
-					motor.jumping.extraHeight = tempExtraHeight;
-				}
+
 			}
-
-
 		}
 
 		if (canSprintOn && canMove)
 		{
 			// Afgør sprint input
-
 			if (Input.GetButtonDown ("Jump") && !outOfBreath)
 			{
 				sprintAmount -= sprintJumpRemove;
@@ -480,14 +451,21 @@ public class PlayerMovement : MonoBehaviour
 			motor.jumping.extraHeight = sprintExtraHeightTemp;
 
 		}
-//		else if (!inWater)
-//		{
-//			motor.movement.maxSidewaysSpeed = tempSpeed;
-//			motor.movement.maxGroundAcceleration = tempMoveAccel;
-//			motor.movement.maxAirAcceleration = tempAirAccel;
-//			motor.jumping.baseHeight = tempBaseHeight;
-//			motor.jumping.extraHeight = tempExtraHeight;
-//		}
+
+		// Water movement
+		if (inWater)
+		{
+			motor.movement.maxSidewaysSpeed = waterMoveSpeedTemp;
+			motor.movement.maxGroundAcceleration = waterMoveAccelTemp;
+		}
+		if (!inWater && !sprinting)
+		{
+			motor.movement.maxSidewaysSpeed = tempSpeed;
+			motor.movement.maxGroundAcceleration = tempMoveAccel;
+			motor.movement.maxSidewaysSpeed = tempSpeed;
+			motor.jumping.baseHeight = tempBaseHeight;
+			motor.jumping.extraHeight = tempExtraHeight;
+		}
 
 		//Sprint vibration
 		sprintVibrate = (maxSprintAmount - sprintAmount)/10;
@@ -505,7 +483,32 @@ public class PlayerMovement : MonoBehaviour
 			}
 		}
 
-
+		// Bools for hvilken retning karakteren og styringen peger
+//		if (animatorGameObject.eulerAngles.y < 269f)
+//		{
+//			facingRight = true;
+//			facingLeft = false;
+//		}
+//		if (animatorGameObject.eulerAngles.y == 270f)
+//		{
+//			facingRight = false;
+//			facingLeft = true;
+//		}
+		if (Input.GetAxis("Horizontal") < -0.1f)
+		{
+			analogRight = false;
+			analogLeft = true;
+		}
+		if (Input.GetAxis("Horizontal") > 0.1f)
+		{
+			analogRight = true;
+			analogLeft = false;
+		}
+		if (Input.GetAxis("Horizontal") == 0f)
+		{
+			analogRight = false;
+			analogLeft = false;
+		}
 
 		// Animation styring
 		if (canMove)
@@ -521,20 +524,42 @@ public class PlayerMovement : MonoBehaviour
 			if (!outOfBreath)
 			{
 				// Flipper figuren den rigtige retning
-				if (Input.GetAxis ("Horizontal") > 0.1f)
+				if (characterFlipping)
 				{
-					animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+					if (Input.GetAxis ("Horizontal") > 0.1f && motor.grounded)
+					{
+						animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+					}
+
+					if (Input.GetAxis ("Horizontal") < -0.1f && motor.grounded)
+					{
+						animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+					}
 				}
 
-				if (Input.GetAxis ("Horizontal") < -0.1f)
+				// Drejer karakteren rundt når man skifter retning
+				if (characterTurning)
 				{
-					animatorGameObject.eulerAngles = new Vector3 (0f,-90f,0f);
+					if (facingRight && motor.grounded && !turning)
+					{
+						if (analogLeft)
+						{
+							StartCoroutine("ChangeDirection", true);
+						}
+					}
+					if (facingLeft && motor.grounded && !turning)
+					{
+						if (analogRight)
+						{
+							StartCoroutine("ChangeDirection", false);
+						}
+					}
 				}
 
 
 				// Kører rigtige animation
 
-				if (Input.GetAxis ("Horizontal") > 0.1f && !moveRight && motor.grounded)
+				if (Input.GetAxis ("Horizontal") > 0.1f && motor.grounded)
 				{
 					moveRight = true;
 					moveLeft = false;
@@ -544,7 +569,16 @@ public class PlayerMovement : MonoBehaviour
 
 				}
 
-				if (Input.GetAxis ("Horizontal") < -0.1f && !moveLeft && motor.grounded)
+				if (turning)
+				{
+					moveRight = true;
+					moveLeft = false;
+					idling = false;
+					jumpUp = false;
+					jumpForward = false;
+				}
+
+				if (Input.GetAxis ("Horizontal") < -0.1f && motor.grounded)
 				{
 					moveRight = false;
 					moveLeft = true;
@@ -554,7 +588,7 @@ public class PlayerMovement : MonoBehaviour
 
 				}
 
-				if (isStopped && !idling && motor.grounded)
+				if (isStopped && motor.grounded)
 				{
 					moveRight = false;
 					moveLeft = false;
@@ -564,7 +598,7 @@ public class PlayerMovement : MonoBehaviour
 					
 				}
 				
-				if (Input.GetButton ("Jump") && isStopped)
+				if (!motor.grounded && isStopped)
 				{
 					idling = false;
 					jumpUp = true;
@@ -573,7 +607,16 @@ public class PlayerMovement : MonoBehaviour
 					moveLeft = false;
 
 				}
-				if (Input.GetButton ("Jump") && isMoving && !motor.grounded)
+//				if (Input.GetButton ("Jump") && isStopped)
+//				{
+//					idling = false;
+//					jumpUp = true;
+//					jumpForward = false;
+//					moveRight = false;
+//					moveLeft = false;
+//					
+//				}
+				if (!motor.grounded && isMoving)
 				{
 					idling = false;
 					jumpUp = false;
@@ -581,11 +624,19 @@ public class PlayerMovement : MonoBehaviour
 					moveRight = false;
 					moveLeft = false;
 				}
+//				if (Input.GetButton ("Jump") && isMoving && !motor.grounded)
+//				{
+//					idling = false;
+//					jumpUp = false;
+//					jumpForward = true;
+//					moveRight = false;
+//					moveLeft = false;
+//				}
 			}		 
 		}
 
 		// Lyde (nogle lyde kaldes under andre funktioner)
-		if (Input.GetButtonDown ("Jump") && motor.grounded)
+		if (Input.GetButtonDown ("Jump") && motor.grounded && canMove)
 		{
 			audioJumpVoice.pitch = Random.Range(0.9f, 1.1f);
 			audioJumpVoice.clip = jumpVoice[Random.Range(0,jumpVoice.Length)];
@@ -615,7 +666,6 @@ public class PlayerMovement : MonoBehaviour
 			if (sprintBreathe)
 			{
 				StartCoroutine(SprintBreathe());
-
 			}
 		}
 
@@ -629,14 +679,6 @@ public class PlayerMovement : MonoBehaviour
 			}
 		}
 
-		if (controller.collisionFlags == CollisionFlags.None)
-		{
-			playerTouching = false;
-		}
-		if (controller.collisionFlags == CollisionFlags.Below)
-		{
-			playerTouching = true;
-		}
 
 		if (outOfBreath)
 		{
@@ -661,6 +703,62 @@ public class PlayerMovement : MonoBehaviour
 //			stepsWater.Play();
 //
 //		}
+	}
+
+	IEnumerator ChangeDirection(bool facing)
+	{
+		Vector3 currentRotation = animatorGameObject.eulerAngles;
+		turning = true;
+//		canMove = false;
+		float mTime = 0f;
+		while(turning)
+		{
+			if (facing)
+			{
+				facingRight = false;
+				facingLeft = true;
+
+				if (mTime < 1f)
+				{
+					moveLeft = true;
+					mTime += Time.deltaTime * turnSpeed;
+					animatorGameObject.eulerAngles = Vector3.Slerp(currentRotation, new Vector3(0,270,0), mTime);
+				}
+				else
+				{
+					turning = false;
+//					canMove = true;
+				}
+//				print ("turned left");
+//				yield return new WaitForSeconds (0.5f);
+//				animatorGameObject.eulerAngles = new Vector3 (0f,270f,0f);
+//				facingRight = false;
+//				facingLeft = true;
+			}
+			else
+			{
+				facingRight = true;
+				facingLeft = false;
+				if (mTime < 1f)
+				{
+					moveRight = true;
+					mTime += Time.deltaTime * turnSpeed;
+					animatorGameObject.eulerAngles = Vector3.Slerp(currentRotation, new Vector3(0,90,0), mTime);
+				}
+				else
+				{
+
+					turning = false;
+//					canMove = true;
+				}
+//				print ("turned right");
+//				yield return new WaitForSeconds (0.5f);
+//				animatorGameObject.eulerAngles = new Vector3 (0f,90f,0f);
+//				facingRight = true;
+//				facingLeft = false;
+			}
+		yield return null;
+		}
 	}
 
 	IEnumerator OutOfBreathing()
@@ -745,26 +843,6 @@ public class PlayerMovement : MonoBehaviour
 //			waterSplash.SetActive(false);
 		}
 	}
-
-//	void OnControllerColliderHit(ControllerColliderHit hit)
-//	{
-//		if (hit.gameObject.CompareTag ("Hurdle"))
-//		{
-////			if (controller.collisionFlags == CollisionFlags.Below)
-////			{
-////				playerTouching = true;
-////			}
-//		}
-//	}
-//	// Hvis spilleren hopper ind i ExtraJump
-//	void OnTriggerEnter(Collider extrajump)
-//	{
-//
-//	}
-
-
-
-
 }
 		
 
