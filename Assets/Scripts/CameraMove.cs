@@ -77,6 +77,9 @@ public class CameraMove : MonoBehaviour
 	private bool ahead = false;
 	private bool behind = false;
 
+	// audio
+	public AudioSource audioStart;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -84,6 +87,9 @@ public class CameraMove : MonoBehaviour
 		spawn = GameObject.Find ("Spawn");
 		motor = GameObject.FindObjectOfType<CharacterMotor> ();
 		move = GameObject.FindObjectOfType<PlayerMovement> ();
+
+		// audio
+		audioStart = GameObject.Find ("audio_start").GetComponent<AudioSource> ();
 		
 //		originRotation = this.transform.eulerAngles;
 
@@ -95,15 +101,17 @@ public class CameraMove : MonoBehaviour
 		smoothZ = transform.position.z;
 		originZ = transform.position.z;
 
+		StartCoroutine (StartSequence ());
+
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () 
 	{
-		if (Input.GetButtonDown("X"))
-		{
-			StartCoroutine (Startcam());
-		}
+//		if (Input.GetButtonDown("X"))
+//		{
+//			StartCoroutine (Startcam());
+//		}
 
 		// Print ting her:
 
@@ -218,6 +226,16 @@ public class CameraMove : MonoBehaviour
 			}
 
 		}
+	}
+
+	IEnumerator StartSequence()
+	{
+		yield return new WaitForSeconds (2f);
+		audioStart.Play ();
+		yield return new WaitForSeconds (0f);
+		camMoving = true;
+		move.canMove = true;
+		windUp = true;
 	}
 
 	// Kameraet starter

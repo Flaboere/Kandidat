@@ -187,6 +187,9 @@ public class PlayerMovement : MonoBehaviour
 		// Movement speeds i vand
 		waterMoveSpeedTemp = tempSpeed - waterMoveSpeed;
 		waterMoveAccelTemp = tempMoveAccel - waterMoveAccel;
+
+		// Starter spillet
+
 	}
 	
 
@@ -229,10 +232,10 @@ public class PlayerMovement : MonoBehaviour
 			isMoving = true;
 		}
 
-		if (Input.GetButtonDown ("X"))
-		{
-			canMove = true;
-		}
+//		if (Input.GetButtonDown ("X"))
+//		{
+//			canMove = true;
+//		}
 
 		// Standard styring
 //		motor.inputMoveDirection = Vector3.right * Input.GetAxis ("Horizontal");
@@ -704,6 +707,7 @@ public class PlayerMovement : MonoBehaviour
 //
 //		}
 	}
+	
 
 	IEnumerator ChangeDirection(bool facing)
 	{
